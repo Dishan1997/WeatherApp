@@ -2,10 +2,10 @@ package com.example.getlocation
 
 data class Temperature(
     //var id : Int =0,
-    var list : List<ListofData> = listOf()
+    var list : List<HourlyWeatherInfo> = listOf()
 )
 
-data class ListofData(
+data class HourlyWeatherInfo(
     val main : TemperatureValue,
     val weather : List<Weather>,
     val wind : Wind,
@@ -17,7 +17,7 @@ data class TemperatureValue(
 )
 data class Weather(
     val main: String,
-    val icon : Int
+    val icon : String
 )
 data class Wind(
     val speed : Double

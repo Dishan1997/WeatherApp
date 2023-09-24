@@ -14,25 +14,22 @@ import com.example.getlocation.databinding.ActivityMainBinding
 import java.util.Locale
 import android.location.LocationListener
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.coroutines.Dispatchers
+import com.bumptech.glide.Glide
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
 class MainActivity : AppCompatActivity(), LocationListener {
 
     private lateinit var binding: ActivityMainBinding
     private val locationPermissionCode = 111
-    private lateinit var recyclerviewAdapter : MainActivityAdapter
+    private lateinit var recyclerviewAdapter: MainActivityAdapter
 
     private lateinit var locationManager: LocationManager
     private lateinit var viewModel: MainActivityViewModel
-
-    private lateinit var tempList : List<ListofData>
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,22 +42,24 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
         // viewModel Starts -----------------------------------
         viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
-        // viewModel Starts -----------------------------------
+        viewModel.weatherInfoLiveData.observe(this, Observer {
+            binding.textViewWeatherType.text = it.main
+            binding.textViewTemperature.text = it.temperature.toString() + "ºC"
+            Glide.with(this).load(it.icon).into(binding.imageViewWeather)
+        })
 
-
-     GlobalScope.launch(Dispatchers.Main) {
-                 tempList = withContext(Dispatchers.IO){
-                     viewModel.getApiDataForThreeHours(23.8041, 90.4152)
-                 }
-       }
+        // viewModel end -----------------------------------
 
 
         // recyclerView Starts -----------------------------------
 
-        binding.recyclerViewWeatherData.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-      // tempList = viewModel.getApiDataForThreeHours(23.8041, 90.4152)
-     //   var dumlist = listOf<Dummy>(Dummy("refat", 10, 3567), Dummy("refat2", 56, 7896))
-        recyclerviewAdapter = MainActivityAdapter(tempList)
+        binding.recyclerViewWeatherData.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+         recyclerviewAdapter = MainActivityAdapter()
+
+        viewModel.listOfWeatherInfoLiveData.observe(this, Observer { list ->
+            recyclerviewAdapter.initTemperature(list)
+        })
         binding.recyclerViewWeatherData.adapter = recyclerviewAdapter
 
         // recyclerView ends -----------------------------------
@@ -74,9 +73,9 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
         requestLocation()
 
-       // third activity
+        // third activity
         binding.buttonHistory.setOnClickListener {
-            var intent = Intent(this, ThirdActivity :: class.java)
+            var intent = Intent(this, ThirdActivity::class.java)
             startActivity(intent)
         }
 
@@ -96,7 +95,10 @@ class MainActivity : AppCompatActivity(), LocationListener {
         Log.i("mytag", "Activity1 onLocationChanges: " + city)
         binding.textViewCityName.text = city
         //get weather data
-        viewModel.makeGetApiRequest(binding, location.latitude, location.longitude)
+        GlobalScope.launch {
+            viewModel.fetchWeatherInfo(location.latitude, location.longitude)
+        }
+
     }
 
     override fun onRequestPermissionsResult(
@@ -150,7 +152,11 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
         var lat = intent.getDoubleExtra("lat", 0.0)
         var long = intent.getDoubleExtra("long", 0.0)
-        viewModel.makeGetApiRequest(binding, lat, long)
+
+        GlobalScope.launch {
+            viewModel.fetchWeatherInfoHourly(lat, long)
+        }
+
         Log.i("mytag", "lat=" + lat.toString() + " long=" + long.toString())
         //val cityName =  getCityName(lat, long)
         val cityName = intent.getStringExtra("cityName")
@@ -170,12 +176,6 @@ class MainActivity : AppCompatActivity(), LocationListener {
         return cityName
     }
     // current Location track ends -----------------------------------
-
-
-    //httpUrlConnection starts -------------------------------------
-
-
-    //httpUrlConnection ends -------------------------------------
 
 
 }

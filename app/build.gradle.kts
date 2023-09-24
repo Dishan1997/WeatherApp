@@ -61,6 +61,7 @@ dependencies {
     val lifecycle_version = "2.6.1"
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
+    implementation("androidx.lifecycle:lifecycle-livedata:$lifecycle_version")
 
     //httpUrlConnection
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1")

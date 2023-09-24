@@ -1,14 +1,17 @@
 package com.example.getlocation
 
+import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.annotation.MainThread
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.getlocation.databinding.DesignLayoutBinding
 
-class MainActivityAdapter(var tempList : List<ListofData>) :RecyclerView.Adapter<MyViewHolder>(){
+class MainActivityAdapter() :RecyclerView.Adapter<MyViewHolder>(){
 
-
+    private var tempList : List<HourlyWeatherInfo> = listOf()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         return  MyViewHolder(DesignLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false))
         //return MyViewHolder(temperatureList)
@@ -16,7 +19,7 @@ class MainActivityAdapter(var tempList : List<ListofData>) :RecyclerView.Adapter
 
     override fun getItemCount(): Int {
         Log.i("mytag", "${tempList.size}")
-     return tempList.size
+      return tempList.size
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
@@ -25,20 +28,27 @@ class MainActivityAdapter(var tempList : List<ListofData>) :RecyclerView.Adapter
         Log.i("mytag", "${position}")
     }
 
+    fun initTemperature(newTempList: List<HourlyWeatherInfo>){
+       tempList = newTempList
+        notifyDataSetChanged()
+    }
 
 }
 
 class MyViewHolder(val binding: DesignLayoutBinding): RecyclerView.ViewHolder(binding.root){
-    fun bind(data: ListofData){
+    fun bind(data: HourlyWeatherInfo){
         binding.textViewTime.text  = data.dt_txt
-        binding.textViewTemp.text  = data.main.temp.toString()
-        binding.imageView.setImageResource(data.weather[0].icon)
-        binding.textViewWind.text = data.wind.toString()
 
+        val temperatureValue1 = (data.main.temp- 273.15).toString()
+        val temperatureValue = String.format("%.2f", temperatureValue1)
+        binding.textViewTemp.text  =  temperatureValue + "ºC"
 
-//        binding.textViewTime.text  = data.name.toString()
-//        binding.textViewTemp.text  = data.age.toString()
-//        binding.textViewWind.text =  data.id.toString()
+        val icon = data.weather[0].icon
+        var uri = Uri.parse("https://openweathermap.org/img/w/" + icon + ".png")
+        Glide.with(binding.root).load(uri).into(binding.imageView)
+
+        binding.textViewWind.text = data.wind.speed.toString()
+
 
         Log.i("mytag", "${data}")
     }
