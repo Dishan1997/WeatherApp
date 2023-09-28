@@ -12,7 +12,7 @@
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
-        android:name=".RealmApplicationClass"
+        android:name="com.example.weatherApp.realm.RealmApplicationClass"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -21,13 +21,13 @@
         android:theme="@style/Theme.GetLocation"
         tools:targetApi="31">
         <activity
-            android:name=".ThirdActivity"
+            android:name="com.example.weatherApp.activities.WeatherDataHistoryActivity"
             android:exported="false" />
         <activity
-            android:name=".SecondActivity"
+            android:name="com.example.weatherApp.activities.SearchLocationActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name="com.example.weatherApp.activities.WeatherInfoActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

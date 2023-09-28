@@ -9,10 +9,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/gradient_bg"
-        tools:context=".MainActivity">
+        tools:context=".activities.WeatherInfoActivity">
 
         <TextView
-            android:id="@+id/textViewCityName"
+            android:id="@+id/cityNameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
@@ -26,7 +26,7 @@
             app:layout_constraintVertical_bias="0.049" />
 
         <Button
-            android:id="@+id/buttonSearchCity"
+            android:id="@+id/searchCityButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Search City"
@@ -39,7 +39,7 @@
             app:layout_constraintVertical_bias="0.139" />
 
         <Button
-            android:id="@+id/buttonHistory"
+            android:id="@+id/historyButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="History"
@@ -52,11 +52,11 @@
             app:layout_constraintVertical_bias="0.238" />
 
         <TextView
-            android:id="@+id/textViewTemperature"
+            android:id="@+id/temperatureTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
-            android:textSize="45sp"
+            android:textSize="60sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.436"
@@ -65,7 +65,7 @@
             app:layout_constraintVertical_bias="0.363" />
 
         <ImageView
-            android:id="@+id/imageViewWeather"
+            android:id="@+id/weatherImageView"
             android:layout_width="118dp"
             android:layout_height="75dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -76,7 +76,7 @@
             app:srcCompat="@drawable/ic_launcher_background" />
 
         <TextView
-            android:id="@+id/textViewWeatherType"
+            android:id="@+id/weatherTypeTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
@@ -89,29 +89,26 @@
             app:layout_constraintVertical_bias="0.563" />
 
         <TextView
-            android:id="@+id/textViewMessage"
+            android:id="@+id/messageTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="475dp"
+            android:layout_marginTop="500dp"
             android:text="Today's Weather Forecast"
             android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.066"
+            app:layout_constraintHorizontal_bias="0.089"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewWeatherData"
-            android:layout_width="match_parent"
-            android:layout_height="187dp"
-            android:layout_marginStart="1dp"
-            android:layout_marginEnd="1dp"
-            android:layout_marginBottom="1dp"
-            app:layout_constraintTop_toBottomOf="@+id/textViewMessage"
+            android:id="@+id/weatherDataRecyclerView"
+            android:layout_width="404dp"
+            android:layout_height="200dp"
+            app:layout_constraintTop_toBottomOf="@+id/messageTextView"
             tools:itemCount="5"
-            tools:listitem="@layout/design_layout" />
+            tools:listitem="@layout/display_weather_info" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

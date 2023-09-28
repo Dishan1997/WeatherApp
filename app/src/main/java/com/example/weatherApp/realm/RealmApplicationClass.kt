@@ -1,4 +1,4 @@
-package com.example.getlocation
+package com.example.weatherApp.realm
 
 import android.app.Application
 import io.realm.Realm

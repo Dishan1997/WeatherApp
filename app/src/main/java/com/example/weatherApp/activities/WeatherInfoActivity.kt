@@ -1,4 +1,4 @@
-package com.example.getlocation
+package com.example.weatherApp.activities
 
 import android.Manifest
 import android.content.Intent
@@ -8,9 +8,7 @@ import android.location.Location
 import android.location.LocationManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.core.app.ActivityCompat
-import com.example.getlocation.databinding.ActivityMainBinding
 import java.util.Locale
 import android.location.LocationListener
 import androidx.core.content.ContextCompat
@@ -18,67 +16,66 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.example.weatherApp.adapter.MainActivityAdapter
+import com.example.weatherApp.viewmodels.WeatherInfoViewModel
+import com.example.getlocation.databinding.WeatherInfoBinding
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 
-class MainActivity : AppCompatActivity(), LocationListener {
+class WeatherInfoActivity : AppCompatActivity(), LocationListener {
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var binding: WeatherInfoBinding
     private val locationPermissionCode = 111
     private lateinit var recyclerviewAdapter: MainActivityAdapter
 
     private lateinit var locationManager: LocationManager
-    private lateinit var viewModel: MainActivityViewModel
+    private lateinit var viewModel: WeatherInfoViewModel
 
 
+    private var cityName = ""
+    private var latitude = 0.0
+    private var longitude = 0.0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = WeatherInfoBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        //current Location track
         getLocation()
 
-        // viewModel Starts -----------------------------------
-        viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+        binding.weatherDataRecyclerView.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        recyclerviewAdapter = MainActivityAdapter()
+
+        viewModel = ViewModelProvider(this).get(WeatherInfoViewModel::class.java)
+
         viewModel.weatherInfoLiveData.observe(this, Observer {
-            binding.textViewWeatherType.text = it.main
-            binding.textViewTemperature.text = it.temperature.toString() + "ºC"
-            Glide.with(this).load(it.icon).into(binding.imageViewWeather)
+            binding.weatherTypeTextView.text = it.main
+            binding.temperatureTextView.text = it.temperature.toString() + "ºC"
+            Glide.with(this).load(it.icon).into(binding.weatherImageView)
         })
 
-        // viewModel end -----------------------------------
 
-
-        // recyclerView Starts -----------------------------------
-
-        binding.recyclerViewWeatherData.layoutManager =
-            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-         recyclerviewAdapter = MainActivityAdapter()
-
+        binding.weatherDataRecyclerView.adapter = recyclerviewAdapter
         viewModel.listOfWeatherInfoLiveData.observe(this, Observer { list ->
             recyclerviewAdapter.initTemperature(list)
         })
-        binding.recyclerViewWeatherData.adapter = recyclerviewAdapter
+        binding.weatherDataRecyclerView.adapter = recyclerviewAdapter
 
-        // recyclerView ends -----------------------------------
-
-
-        //second activity
-        binding.buttonSearchCity.setOnClickListener {
-            var intent = Intent(this, SecondActivity::class.java)
+        binding.searchCityButton.setOnClickListener {
+            var intent = Intent(this, SearchLocationActivity::class.java)
             startActivityForResult(intent, 300)
         }
 
-        requestLocation()
-
-        // third activity
-        binding.buttonHistory.setOnClickListener {
-            var intent = Intent(this, ThirdActivity::class.java)
+        binding.historyButton.setOnClickListener {
+            var intent = Intent(this, WeatherDataHistoryActivity::class.java)
+            intent.putExtra("latitude", latitude)
+            intent.putExtra("longitude", longitude)
+            intent.putExtra("getCityName", cityName)
             startActivity(intent)
         }
 
+        requestLocation()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -86,18 +83,16 @@ class MainActivity : AppCompatActivity(), LocationListener {
         if (requestCode == 300 && data != null) {
             getValuesFromSecondActivity(data)
         }
-        Log.i("mytag", "inside onActivityResult")
     }
 
-
     override fun onLocationChanged(location: Location) {
+        latitude = location.latitude
+        longitude = location.longitude
         val city = getCityName(location.latitude, location.longitude)
-        Log.i("mytag", "Activity1 onLocationChanges: " + city)
-        binding.textViewCityName.text = city
-        //get weather data
-        GlobalScope.launch {
-            viewModel.fetchWeatherInfo(location.latitude, location.longitude)
-        }
+        binding.cityNameTextView.text = city
+        cityName = city
+
+        getApiDataFromViewModel()
 
     }
 
@@ -113,7 +108,6 @@ class MainActivity : AppCompatActivity(), LocationListener {
                 requestLocation()
             }
         }
-        Log.i("mytag", "Activity1 : onRequestPermissionsResult")
     }
 
     private fun requestLocation() {
@@ -130,8 +124,6 @@ class MainActivity : AppCompatActivity(), LocationListener {
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 400, 1f, this)
     }
 
-
-    // current Location track Start -----------------------------------
     private fun getLocation() {
         locationManager = applicationContext.getSystemService(LOCATION_SERVICE) as LocationManager
         if ((ContextCompat.checkSelfPermission(
@@ -145,37 +137,38 @@ class MainActivity : AppCompatActivity(), LocationListener {
                 locationPermissionCode
             )
         }
-        Log.i("mytag", "inside getLocation")
     }
 
     private fun getValuesFromSecondActivity(intent: Intent) {
-
         var lat = intent.getDoubleExtra("lat", 0.0)
         var long = intent.getDoubleExtra("long", 0.0)
+        latitude = lat
+        longitude = long
 
+        getApiDataFromViewModel()
+        val city = intent.getStringExtra("cityName")
+        binding.cityNameTextView.text = city
+        cityName = city.toString()
+    }
+
+    private fun getApiDataFromViewModel() {
         GlobalScope.launch {
-            viewModel.fetchWeatherInfoHourly(lat, long)
+            viewModel.fetchWeatherInfoHourly(latitude, longitude)
+            viewModel.fetchWeatherInfo(latitude, longitude)
         }
-
-        Log.i("mytag", "lat=" + lat.toString() + " long=" + long.toString())
-        //val cityName =  getCityName(lat, long)
-        val cityName = intent.getStringExtra("cityName")
-        binding.textViewCityName.text = cityName
     }
 
     private fun getCityName(lat: Double, long: Double): String {
-        var cityName: String = ""
+
+        var city: String = ""
         var geoCoder = Geocoder(this, Locale.getDefault())
         var addresses = geoCoder.getFromLocation(lat, long, 3)
         if (addresses.isNullOrEmpty()) {
             return ""
         }
-
         var address = addresses.get(0)
-        cityName = address.locality.toString()
-        return cityName
+        city = address.locality.toString()
+        return city
     }
-    // current Location track ends -----------------------------------
-
 
 }
