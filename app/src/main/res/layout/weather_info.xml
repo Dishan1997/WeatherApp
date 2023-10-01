@@ -20,17 +20,19 @@
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.478"
+            app:layout_constraintHorizontal_bias="0.462"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.049" />
+            app:layout_constraintVertical_bias="0.071" />
 
         <Button
             android:id="@+id/searchCityButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="179dp"
+            android:layout_height="51dp"
+            android:background="@drawable/button"
             android:text="Search City"
-            android:textSize="24sp"
+            android:textColor="@color/white"
+            android:textSize="15sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.425"
@@ -39,17 +41,18 @@
             app:layout_constraintVertical_bias="0.139" />
 
         <Button
-            android:id="@+id/historyButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="History"
-            android:textSize="24sp"
+            android:id="@+id/forecastButton"
+            android:layout_width="275dp"
+            android:layout_height="54dp"
+            android:textColor="@color/white"
+            android:background="@drawable/button"
+            android:text="5-day weather forecast"
+            android:textSize="15sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.446"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.238" />
+            app:layout_constraintVertical_bias="0.945" />
 
         <TextView
             android:id="@+id/temperatureTextView"
@@ -59,10 +62,10 @@
             android:textSize="60sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.436"
+            app:layout_constraintHorizontal_bias="0.437"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.363" />
+            app:layout_constraintVertical_bias="0.256" />
 
         <ImageView
             android:id="@+id/weatherImageView"
@@ -70,9 +73,10 @@
             android:layout_height="75dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.443"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.483"
+            app:layout_constraintVertical_bias="0.376"
             app:srcCompat="@drawable/ic_launcher_background" />
 
         <TextView
@@ -83,16 +87,16 @@
             android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintHorizontal_bias="0.462"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.563" />
+            app:layout_constraintVertical_bias="0.457" />
 
         <TextView
             android:id="@+id/messageTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="500dp"
+            android:layout_marginTop="448dp"
             android:text="Today's Weather Forecast"
             android:textColor="@color/white"
             android:textSize="20sp"
@@ -104,11 +108,12 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/weatherDataRecyclerView"
-            android:layout_width="404dp"
-            android:layout_height="200dp"
+            android:layout_width="403dp"
+            android:layout_height="171dp"
             app:layout_constraintTop_toBottomOf="@+id/messageTextView"
             tools:itemCount="5"
-            tools:listitem="@layout/display_weather_info" />
+            tools:listitem="@layout/display_weather_info"
+            tools:ignore="MissingConstraints" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

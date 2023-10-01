@@ -8,12 +8,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherApp.ConstantKeys
+import com.example.weatherApp.CurrentWeatherInfo
+import com.example.weatherApp.HourlyWeatherInfo
 import com.example.weatherApp.apiResponseDataClasses.HourlyWeatherInfoResponse
 import com.example.weatherApp.WeatherInfo
 import com.example.weatherApp.apiResponseDataClasses.TemperatureValueResponse
 import com.example.weatherApp.apiResponseDataClasses.WeatherResponse
 import com.example.weatherApp.apiResponseDataClasses.WindResponse
-import com.example.weatherApp.realm.HourlyWeatherInfo
+import com.example.weatherApp.realm.WeatherForecastInfo
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.realm.Realm
@@ -29,7 +31,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 class WeatherInfoViewModel : ViewModel() {
-    private val realm = Realm.getDefaultInstance()
+
     private var weatherInfo: MutableLiveData<WeatherInfo> = MutableLiveData()
     private var listOfWeatherInfos: MutableLiveData<List<HourlyWeatherInfoResponse>> =
         MutableLiveData()
@@ -73,8 +75,8 @@ class WeatherInfoViewModel : ViewModel() {
                 weatherInfo.value = WeatherInfo(main, uri, celcius.toDouble())
             }
             val currentWeatherData = WeatherInfo(main, uri, celcius.toDouble())
-            saveCurrentDataToRealm(currentWeatherData)
 
+            saveCurrentDataToRealm(currentWeatherData)
 
         } catch (ioexception: IOException) {
             Log.e(this.javaClass.name, ioexception.message.toString())
@@ -88,21 +90,19 @@ class WeatherInfoViewModel : ViewModel() {
     }
 
     private fun saveCurrentDataToRealm(weatherData : WeatherInfo) {
-//        val realmObject = HourlyWeatherInfo()
-//        realmObject.time = weatherData.main
-//        realmObject.icon = weatherData.icon.toString()
-//        realmObject.temperature = weatherData.temperature
-
+        val realmObject = CurrentWeatherInfo()
+        realmObject.icon = weatherData.icon.toString()
+        realmObject.temperatureType = weatherData.main
+        realmObject.temperature = weatherData.temperature
     }
 
     private fun saveHourlyDataToRealm(weatherData :List<HourlyWeatherInfoResponse>) {
       weatherData.forEach{item->
-//          val realmObject = HourlyWeatherInfo()
-//          realmObject.time = item.dt_txt
-//          realmObject.icon = item.weather[0].icon
-//          realmObject.temperatureType = item.weather[0].main
-//          realmObject.temperature = item.main.temp
-//          realmObject.windSpeed = item.wind.speed
+       val realmObject = HourlyWeatherInfo()
+          realmObject.time = item.dt_txt
+          realmObject.icon = item.weather[0].icon
+          realmObject.temperature = item.main.temp
+          realmObject.windSpeed = item.wind.speed
       }
     }
 
@@ -132,6 +132,7 @@ class WeatherInfoViewModel : ViewModel() {
             newList = Gson().fromJson(weatherList.toString(), type)
 
             saveHourlyDataToRealm(newList)
+
             viewModelScope.launch(Dispatchers.Main) {
                 listOfWeatherInfos.value = newList
             }
@@ -149,7 +150,8 @@ class WeatherInfoViewModel : ViewModel() {
     }
 
     fun getHourlyDataFromRealm(): List<HourlyWeatherInfoResponse> {
-        val results = realm.where(HourlyWeatherInfo::class.java).findAll()
+        var realm = Realm.getDefaultInstance()
+        val results = realm.where(WeatherForecastInfo::class.java).findAll()
         val weatherInfoList = mutableListOf<HourlyWeatherInfoResponse>()
         results.forEach { item ->
             val hourlyWeather = HourlyWeatherInfoResponse(
@@ -168,7 +170,8 @@ class WeatherInfoViewModel : ViewModel() {
     }
 
     fun getCurrentDataFromRealm(): WeatherInfo {
-        val results = realm.where(HourlyWeatherInfo::class.java).findAll()
+        var realm = Realm.getDefaultInstance()
+        val results = realm.where(WeatherForecastInfo::class.java).findAll()
         var currentWeatherdata = WeatherInfo("", Uri.EMPTY, 0.0)
         results.forEach { item ->
             val currentWeather = WeatherInfo(
@@ -180,6 +183,7 @@ class WeatherInfoViewModel : ViewModel() {
     }
     override fun onCleared() {
         super.onCleared()
+        var realm = Realm.getDefaultInstance()
         realm.close()
     }
 

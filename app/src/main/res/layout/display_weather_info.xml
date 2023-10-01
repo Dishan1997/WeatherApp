@@ -14,7 +14,7 @@
             android:layout_width="119dp"
             android:layout_height="164dp"
             android:foregroundGravity="center"
-            app:cardBackgroundColor="@color/mapbox_blue"
+            app:cardBackgroundColor="@color/startColor"
             app:cardCornerRadius="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

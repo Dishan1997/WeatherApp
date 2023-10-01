@@ -4,9 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.weatherApp.WeatherForecastData
-import com.example.weatherApp.WeatherInfo
-import com.example.weatherApp.realm.HourlyWeatherInfo
+import com.example.weatherApp.realm.WeatherForecastInfo
 import com.example.weatherApp.apiResponseDataClasses.HourlyWeatherInfoResponse
 import com.example.weatherApp.retrofit.RetrofitInstance
 import com.example.weatherApp.apiResponseDataClasses.FullWeatherDataResponse
@@ -23,15 +21,15 @@ import retrofit2.Response
 import java.text.SimpleDateFormat
 
 
-class WeatherDataHistoryViewModel : ViewModel() {
+class WeatherDataForecastViewModel : ViewModel() {
 
     private var temperatureServices: weatherResponseService
     private val realm = Realm.getDefaultInstance()
     private var weatherData = MutableLiveData<List<HourlyWeatherInfoResponse>>()
     val weatherLiveData: LiveData<List<HourlyWeatherInfoResponse>> = weatherData
 
-    private var weatherInfo: MutableLiveData<WeatherForecastData> = MutableLiveData()
-    val weatherInfoLiveData: LiveData<WeatherForecastData>
+    private var weatherInfo: MutableLiveData<com.example.weatherApp.WeatherForecastInfo> = MutableLiveData()
+    val weatherInfoLiveData: LiveData<com.example.weatherApp.WeatherForecastInfo>
         get() = weatherInfo
 
 
@@ -54,10 +52,10 @@ class WeatherDataHistoryViewModel : ViewModel() {
                     setDataOnViews(weatherResponse)
 
                     realm.executeTransaction { realm ->
-                        realm.where(HourlyWeatherInfo::class.java).findAll().deleteAllFromRealm()
+                        realm.where(WeatherForecastInfo::class.java).findAll().deleteAllFromRealm()
 
                         weatherResponse?.forEach { item ->
-                            val realmObject = HourlyWeatherInfo()
+                            val realmObject = WeatherForecastInfo()
                             realmObject.date = item.dt_txt
                             realmObject.time = item.dt_txt
                             realmObject.icon = item.weather[0].icon
@@ -81,30 +79,38 @@ class WeatherDataHistoryViewModel : ViewModel() {
             }
         })
     }
-    fun setDataOnViews(weatherResponseData : List<HourlyWeatherInfoResponse>){
 
-        weatherResponseData.forEach{weatherResponse->
-            val temperatureValue = weatherResponse.main.temp - 273.15
+    fun setDataOnViews(weatherResponse: List<HourlyWeatherInfoResponse>) {
+
+            val temperatureValue = weatherResponse[0].main.temp - 273.15
             val temperature = temperatureValue.toInt()
 
-            val type = weatherResponse.weather[0].main
+            val type = weatherResponse[0].weather[0].main
 
-            val inputDate = weatherResponse.dt_txt
+            val inputDate = weatherResponse[0].dt_txt
             val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
             val outputFormat = SimpleDateFormat("MMM d")
             val outputDate = inputFormat.parse(inputDate)
-            val date =  outputFormat.format(outputDate)
+            val date = outputFormat.format(outputDate)
 
-            val minTemperatureValue = weatherResponse.main.temp_min - 273.15
+            val minTemperatureValue = weatherResponse[0].main.temp_min - 273.15
             val minTemperature = minTemperatureValue.toInt()
 
-            val maxTemperatureValue = weatherResponse.main.temp_max - 273.15
+            val maxTemperatureValue = weatherResponse[0].main.temp_max - 273.15
             val maxTemperature = maxTemperatureValue.toInt()
+            val icon = weatherResponse[0].weather[0].icon
 
             viewModelScope.launch(Dispatchers.Main) {
-                weatherInfo.value = WeatherForecastData(temperature, type, date, minTemperature, maxTemperature)
+                weatherInfo.value = com.example.weatherApp.WeatherForecastInfo(
+                    temperature,
+                    type,
+                    date,
+                    minTemperature,
+                    maxTemperature,
+                    icon
+                )
             }
-        }
+
     }
 
     override fun onCleared() {
@@ -116,7 +122,7 @@ class WeatherDataHistoryViewModel : ViewModel() {
         viewModelScope.launch {
             val realm = Realm.getDefaultInstance()
         }
-        val results = realm.where(HourlyWeatherInfo::class.java).findAll()
+        val results = realm.where(WeatherForecastInfo::class.java).findAll()
         val weatherInfoList = mutableListOf<HourlyWeatherInfoResponse>()
         results.forEach { item ->
             val hourlyWeather = HourlyWeatherInfoResponse(

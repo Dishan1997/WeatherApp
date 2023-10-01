@@ -1,9 +1,8 @@
 package com.example.weatherApp.realm
 
 import io.realm.RealmObject
-import io.realm.annotations.PrimaryKey
 
-open class HourlyWeatherInfo : RealmObject() {
+open class WeatherForecastInfo : RealmObject() {
     var date: String = ""
     var time: String = ""
     var icon: String = ""

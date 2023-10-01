@@ -11,6 +11,7 @@ import android.os.Bundle
 import androidx.core.app.ActivityCompat
 import java.util.Locale
 import android.location.LocationListener
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -67,16 +68,17 @@ class WeatherInfoActivity : AppCompatActivity(), LocationListener {
             startActivityForResult(intent, 300)
         }
 
-        binding.historyButton.setOnClickListener {
-            var intent = Intent(this, WeatherDataHistoryActivity::class.java)
-            intent.putExtra("latitude", latitude)
-            intent.putExtra("longitude", longitude)
+        binding.forecastButton.setOnClickListener {
+            var intent = Intent(this, WeatherDataForecastActivity::class.java)
+            intent.putExtra("latitude1", latitude)
+            intent.putExtra("longitude1", longitude)
             intent.putExtra("getCityName", cityName)
             startActivity(intent)
         }
 
         requestLocation()
     }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)

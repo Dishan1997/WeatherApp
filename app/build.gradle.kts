@@ -93,6 +93,4 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
     kapt("androidx.lifecycle:lifecycle-compiler:$lifecycle_version")
 
-    
-
 }

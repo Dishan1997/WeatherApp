@@ -10,6 +10,8 @@ class RealmApplicationClass : Application() {
 
         Realm.init(this)
         val config = RealmConfiguration.Builder()
+            .schemaVersion(1)
+            .deleteRealmIfMigrationNeeded()
             .allowWritesOnUiThread(true)
             .allowQueriesOnUiThread(true)
             .name("demo")
@@ -17,3 +19,4 @@ class RealmApplicationClass : Application() {
         Realm.setDefaultConfiguration(config)
     }
 }
+

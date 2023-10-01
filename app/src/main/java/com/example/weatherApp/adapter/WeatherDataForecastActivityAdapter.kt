@@ -5,8 +5,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.getlocation.databinding.DisplayWeatherForecastBinding
 import com.example.weatherApp.apiResponseDataClasses.HourlyWeatherInfoResponse
-import com.example.getlocation.databinding.DisplayWeatherHistoryBinding
+
 import java.text.SimpleDateFormat
 
 class ThirdActivityAdapter() : RecyclerView.Adapter<TemperatureViewHolder>() {
@@ -14,7 +15,7 @@ class ThirdActivityAdapter() : RecyclerView.Adapter<TemperatureViewHolder>() {
     var tempHistoryList: List<HourlyWeatherInfoResponse> = listOf()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TemperatureViewHolder {
         return TemperatureViewHolder(
-            DisplayWeatherHistoryBinding.inflate(
+            DisplayWeatherForecastBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
                 false
@@ -33,7 +34,7 @@ class ThirdActivityAdapter() : RecyclerView.Adapter<TemperatureViewHolder>() {
         notifyDataSetChanged()
     }
 }
-class TemperatureViewHolder(val binding: DisplayWeatherHistoryBinding) :
+class TemperatureViewHolder(val binding: DisplayWeatherForecastBinding) :
     RecyclerView.ViewHolder(binding.root) {
     fun bind(temp: HourlyWeatherInfoResponse) {
         val inputDate = temp.dt_txt

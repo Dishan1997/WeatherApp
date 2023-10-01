@@ -1,39 +1,35 @@
 package com.example.weatherApp.activities
 
-import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.example.getlocation.databinding.WeatherForecastBinding
 import com.example.weatherApp.ConstantKeys
 import com.example.weatherApp.adapter.ThirdActivityAdapter
-import com.example.weatherApp.viewmodels.WeatherDataHistoryViewModel
-import com.example.getlocation.databinding.WeatherHistoryBinding
+import com.example.weatherApp.viewmodels.WeatherDataForecastViewModel
 import io.realm.Realm
 
-class WeatherDataHistoryActivity : AppCompatActivity() {
-    private lateinit var binding: WeatherHistoryBinding
+class WeatherDataForecastActivity : AppCompatActivity() {
+    private lateinit var binding: WeatherForecastBinding
     private lateinit var recyclerviewAdapter: ThirdActivityAdapter
-    var realm = Realm.getDefaultInstance()
-    private lateinit var viewModel: WeatherDataHistoryViewModel
-
+    private lateinit var viewModel: WeatherDataForecastViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = WeatherHistoryBinding.inflate(layoutInflater)
+        binding = WeatherForecastBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel = ViewModelProvider(this)[WeatherDataHistoryViewModel::class.java]
+        viewModel = ViewModelProvider(this)[WeatherDataForecastViewModel::class.java]
 
-        val intent = Intent(this, WeatherInfoActivity::class.java)
-        val lat = intent.getDoubleExtra("latitude", 0.0)
-        val lon = intent.getDoubleExtra("longitude", 0.0)
+         val intent = getIntent()
+        val lat = intent.getDoubleExtra("latitude1", 0.0)
+        val lon = intent.getDoubleExtra("longitude1", 0.0)
         val cityName = intent.getStringExtra("getCityName")
-        Log.i("mytag","city name = $cityName   lat = $lat   long = $lon")
-        binding.cityTextView.text = "The Westin Dhaka"
+        binding.cityTextView.text = cityName
 
         binding.weatherHistoryDataRecyclerView.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
@@ -44,9 +40,11 @@ class WeatherDataHistoryActivity : AppCompatActivity() {
         viewModel.weatherInfoLiveData.observe(this, Observer {
             binding.tempTextView.text = it.temperature.toString()
             binding.weatherTypeTextView.text = it.type
-            binding.maxTempTextView.text = it.maxTemperature.toString() + "ºC/"
+            binding.maxTempTextView.text = it.maxTemperature.toString() + "ºC /  "
             binding.minTempTextView.text = it.minTemperature.toString() + "ºC"
             binding.dateTextView.text = it.date
+            var uri = Uri.parse("https://openweathermap.org/img/w/" + it.wetherIcon + ".png")
+            Glide.with(binding.root).load(uri).into(binding.currentWeatherIconImageView)
         })
 
         viewModel.weatherLiveData.observe(this, Observer { weatherData ->
@@ -58,6 +56,7 @@ class WeatherDataHistoryActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        var realm = Realm.getDefaultInstance()
         realm.close()
     }
 
