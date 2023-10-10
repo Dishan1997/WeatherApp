@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.getlocation.R
 import com.example.getlocation.databinding.WeatherInfoBinding
+import com.example.weatherApp.ConstantKeys
 import com.example.weatherApp.activities.SearchLocationActivity
 import com.example.weatherApp.adapter.WeatherInfoActivityAdapter
 import com.example.weatherApp.viewmodels.WeatherInfoViewModel
@@ -82,9 +83,9 @@ class WeatherInfoFragment : Fragment(), LocationListener {
 
         binding.forecastButton.setOnClickListener {
             val bundle = Bundle()
-            bundle.putDouble("latitude", latitude)
-            bundle.putDouble("longitude",longitude)
-            bundle.putString("cityName", cityName)
+            bundle.putDouble(ConstantKeys.KEY_LATITUDE, latitude)
+            bundle.putDouble(ConstantKeys.KEY_LONGITUDE,longitude)
+            bundle.putString(ConstantKeys.KEY_CITY_NAME, cityName)
             val weatherDataForecastFragment = WeatherDataForecastFragment()
             weatherDataForecastFragment.arguments= bundle
             val transaction = fragmentManager?.beginTransaction()
@@ -92,8 +93,8 @@ class WeatherInfoFragment : Fragment(), LocationListener {
             transaction?.addToBackStack(null)
             transaction?.commit()
         }
-        setFragmentResultListener("fragmentKey"){key, bundle->
-            val cityname = bundle.getString("getCityNameFromFragment")
+        setFragmentResultListener(ConstantKeys.FRAGMENT_KEY){key, bundle->
+            val cityname = bundle.getString(ConstantKeys.KEY_CITY_NAME)
             binding.cityNameTextView.text = cityname
         }
         requestLocation()
@@ -150,25 +151,25 @@ class WeatherInfoFragment : Fragment(), LocationListener {
         if (context?.let {
                 ContextCompat.checkSelfPermission(
                     it,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION
+                    Manifest.permission.ACCESS_FINE_LOCATION
                 )
             } != PackageManager.PERMISSION_GRANTED)
         {
             requestPermissions(
-                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 locationPermissionCode
             )
         }
     }
 
     private fun getValuesFromSearchLocation(intent: Intent) {
-        var lat = intent.getDoubleExtra("latKey", 0.0)
-        var long = intent.getDoubleExtra("longKey", 0.0)
+        var lat = intent.getDoubleExtra(ConstantKeys.KEY_LATITUDE, 0.0)
+        var long = intent.getDoubleExtra(ConstantKeys.KEY_LONGITUDE, 0.0)
         latitude = lat
         longitude = long
 
         getApiDataFromViewModel()
-        val city = intent.getStringExtra("cityNameKey")
+        val city = intent.getStringExtra(ConstantKeys.KEY_CITY_NAME)
         binding.cityNameTextView.text = city
         cityName = city.toString()
     }

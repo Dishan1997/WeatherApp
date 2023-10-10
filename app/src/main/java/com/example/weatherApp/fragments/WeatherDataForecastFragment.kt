@@ -1,6 +1,5 @@
 package com.example.weatherApp.fragments
 
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -38,9 +37,9 @@ class WeatherDataForecastFragment : Fragment() {
         viewModel = ViewModelProvider(this)[WeatherDataForecastViewModel::class.java]
 
         val bundle = arguments
-        val lat = bundle?.getDouble("latitude")
-        val lon = bundle?.getDouble("longitude")
-        val cityName = bundle?.getString("cityName")
+        val lat = bundle?.getDouble(ConstantKeys.KEY_LATITUDE)
+        val lon = bundle?.getDouble(ConstantKeys.KEY_LONGITUDE)
+        val cityName = bundle?.getString(ConstantKeys.KEY_CITY_NAME)
         binding.cityTextView.text = cityName
 
         binding.weatherHistoryDataRecyclerView.layoutManager =
@@ -48,7 +47,7 @@ class WeatherDataForecastFragment : Fragment() {
         recyclerviewAdapter = WeatherDataForecastActivityAdapter()
 
         if (lon != null && lat != null) {
-            viewModel.fetchWeatherForecastAndSaveToRealm(lat, lon, ConstantKeys.appid)
+            viewModel.fetchWeatherForecastAndSaveToRealm(lat, lon, ConstantKeys.APP_ID)
         }
 
         viewModel.weatherInfoLiveData.observe(viewLifecycleOwner, Observer {
@@ -65,6 +64,6 @@ class WeatherDataForecastFragment : Fragment() {
 
         })
         binding.weatherHistoryDataRecyclerView.adapter = recyclerviewAdapter
-       setFragmentResult("fragmentKey", bundleOf("getCityNameFromFragment" to cityName))
+       setFragmentResult(ConstantKeys.FRAGMENT_KEY, bundleOf(ConstantKeys.KEY_CITY_NAME to cityName))
     }
 }

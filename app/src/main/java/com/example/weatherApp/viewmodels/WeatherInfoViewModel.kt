@@ -46,7 +46,7 @@ class WeatherInfoViewModel : ViewModel() {
         var httpURLConnection: HttpURLConnection? = null
         try {
             val url =
-                URL("${ConstantKeys.BASE_URLforCurrentData}lat=$lat&lon=$long&appid=${ConstantKeys.appid}")
+                URL("${ConstantKeys.BASE_URL}weather?lat=$lat&lon=$long&appid=${ConstantKeys.APP_ID}")
             httpURLConnection = url.openConnection() as HttpURLConnection
             val code = httpURLConnection.responseCode
             if (code != 200) {
@@ -124,7 +124,7 @@ class WeatherInfoViewModel : ViewModel() {
         var httpURLConnection: HttpURLConnection? = null
         try {
             val url =
-                URL("${ConstantKeys.BASE_URLforHourlyData}lat=$lat&lon=$long&appid=${ConstantKeys.appid}")
+                URL("${ConstantKeys.BASE_URL}forecast?lat=$lat&lon=$long&appid=${ConstantKeys.APP_ID}")
             httpURLConnection = url.openConnection() as HttpURLConnection
             val code = httpURLConnection.responseCode
             if (code != 200) {

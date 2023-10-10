@@ -19,6 +19,7 @@ import com.bumptech.glide.Glide
 import com.example.weatherApp.adapter.WeatherInfoActivityAdapter
 import com.example.weatherApp.viewmodels.WeatherInfoViewModel
 import com.example.getlocation.databinding.WeatherInfoBinding
+import com.example.weatherApp.ConstantKeys
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -69,9 +70,9 @@ class WeatherInfoActivity : AppCompatActivity(), LocationListener {
 
         binding.forecastButton.setOnClickListener {
             var intent = Intent(this, WeatherDataForecastActivity::class.java)
-            intent.putExtra("latitudeKey", latitude)
-            intent.putExtra("longitudeKey", longitude)
-            intent.putExtra("cityNameKey", cityName)
+            intent.putExtra(ConstantKeys.KEY_LATITUDE, latitude)
+            intent.putExtra(ConstantKeys.KEY_LONGITUDE, longitude)
+            intent.putExtra(ConstantKeys.KEY_CITY_NAME, cityName)
             startActivity(intent)
         }
 
@@ -140,13 +141,13 @@ class WeatherInfoActivity : AppCompatActivity(), LocationListener {
     }
 
     private fun getValuesFromSecondActivity(intent: Intent) {
-        var lat = intent.getDoubleExtra("latKey", 0.0)
-        var long = intent.getDoubleExtra("longKey", 0.0)
+        var lat = intent.getDoubleExtra(ConstantKeys.KEY_LATITUDE, 0.0)
+        var long = intent.getDoubleExtra(ConstantKeys.KEY_LONGITUDE, 0.0)
         latitude = lat
         longitude = long
 
         getApiDataFromViewModel()
-        val city = intent.getStringExtra("cityNameKey")
+        val city = intent.getStringExtra(ConstantKeys.KEY_CITY_NAME)
         binding.cityNameTextView.text = city
         cityName = city.toString()
     }

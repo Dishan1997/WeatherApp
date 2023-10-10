@@ -24,16 +24,16 @@ class WeatherDataForecastActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this)[WeatherDataForecastViewModel::class.java]
 
          val intent = getIntent()
-        val lat = intent.getDoubleExtra("latitudeKey", 0.0)
-        val lon = intent.getDoubleExtra("longitudeKey", 0.0)
-        val cityName = intent.getStringExtra("cityNameKey")
+        val lat = intent.getDoubleExtra(ConstantKeys.KEY_LATITUDE, 0.0)
+        val lon = intent.getDoubleExtra(ConstantKeys.KEY_LONGITUDE, 0.0)
+        val cityName = intent.getStringExtra(ConstantKeys.KEY_CITY_NAME)
         binding.cityTextView.text = cityName
 
         binding.weatherHistoryDataRecyclerView.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerviewAdapter = WeatherDataForecastActivityAdapter()
 
-        viewModel.fetchWeatherForecastAndSaveToRealm(lat, lon, ConstantKeys.appid)
+        viewModel.fetchWeatherForecastAndSaveToRealm(lat, lon, ConstantKeys.APP_ID)
 
         viewModel.weatherInfoLiveData.observe(this, Observer {
             binding.tempTextView.text = it.temperature.toString()

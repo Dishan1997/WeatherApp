@@ -8,9 +8,6 @@ import com.example.weatherApp.ConstantKeys
 import com.example.weatherApp.viewmodels.SearchLocationViewModel
 import com.example.getlocation.databinding.SearchLocationBinding
 import com.mapbox.mapboxsdk.plugins.places.autocomplete.PlaceAutocomplete
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class SearchLocationActivity : AppCompatActivity() {
     private lateinit var binding: SearchLocationBinding
@@ -23,7 +20,7 @@ class SearchLocationActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this).get(SearchLocationViewModel::class.java)
 
         val intent = PlaceAutocomplete.IntentBuilder()
-            .accessToken(ConstantKeys.accessToken)
+            .accessToken(ConstantKeys.ACCESS_TOKEN)
             .placeOptions(null)
             .build(this@SearchLocationActivity)
         startActivityForResult(intent, 111)
@@ -36,9 +33,9 @@ class SearchLocationActivity : AppCompatActivity() {
         val locationData = viewModel.getDataFromLocationSearch(requestCode, resultCode, data)
 
         var intent = Intent()
-        intent.putExtra("latKey", locationData.lat)
-        intent.putExtra("longKey", locationData.long)
-        intent.putExtra("cityNameKey", locationData.cityName)
+        intent.putExtra(ConstantKeys.KEY_LATITUDE, locationData.lat)
+        intent.putExtra(ConstantKeys.KEY_LONGITUDE, locationData.long)
+        intent.putExtra(ConstantKeys.KEY_CITY_NAME, locationData.cityName)
         setResult(300, intent)
         finish()
     }
