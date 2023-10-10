@@ -1,17 +1,21 @@
-package com.example.weatherApp
+package com.example.weatherApp.activities
 
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.getlocation.databinding.WeatherForecastBinding
-import com.example.getlocation.databinding.WeatherInfoBinding
+import com.example.weatherApp.ConstantKeys
 import com.example.weatherApp.adapter.WeatherDataForecastActivityAdapter
 import com.example.weatherApp.viewmodels.WeatherDataForecastViewModel
 
@@ -58,10 +62,11 @@ class WeatherDataForecastFragment : Fragment() {
             var uri = Uri.parse("https://openweathermap.org/img/w/" + it.wetherIcon + ".png")
             Glide.with(binding.root).load(uri).into(binding.currentWeatherIconImageView)
         })
-        viewModel.weatherLiveData.observe(viewLifecycleOwner, Observer { weatherData ->
+         viewModel.weatherLiveData.observe(viewLifecycleOwner, Observer { weatherData ->
             recyclerviewAdapter.initWeather(weatherData)
 
         })
         binding.weatherHistoryDataRecyclerView.adapter = recyclerviewAdapter
+       setFragmentResult("fragmentKey", bundleOf("getCityNameFromFragment" to cityName))
     }
 }
