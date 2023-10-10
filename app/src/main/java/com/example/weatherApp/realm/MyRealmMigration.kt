@@ -1,6 +1,5 @@
 package com.example.weatherApp.realm
 
-import com.example.weatherApp.HourlyWeatherInfo
 import io.realm.DynamicRealm
 import io.realm.RealmMigration
 

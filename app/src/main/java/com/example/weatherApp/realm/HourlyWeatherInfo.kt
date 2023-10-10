@@ -1,4 +1,4 @@
-package com.example.weatherApp
+package com.example.weatherApp.realm
 
 import io.realm.RealmObject
 

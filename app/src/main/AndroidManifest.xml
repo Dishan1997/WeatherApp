@@ -27,11 +27,10 @@
             android:name="com.example.weatherApp.activities.SearchLocationActivity"
             android:exported="false" />
         <activity
-            android:name="com.example.weatherApp.activities.WeatherInfoActivity"
+            android:name="com.example.weatherApp.activities.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

@@ -1,4 +1,4 @@
-package com.example.weatherApp.activities
+package com.example.weatherApp.fragments
 
 import android.Manifest
 import android.content.Intent
@@ -14,9 +14,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -24,6 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.getlocation.R
 import com.example.getlocation.databinding.WeatherInfoBinding
+import com.example.weatherApp.activities.SearchLocationActivity
 import com.example.weatherApp.adapter.WeatherInfoActivityAdapter
 import com.example.weatherApp.viewmodels.WeatherInfoViewModel
 import kotlinx.coroutines.GlobalScope
@@ -70,7 +69,7 @@ class WeatherInfoFragment : Fragment(), LocationListener {
 
         binding.weatherDataRecyclerView.adapter = recyclerviewAdapter
         viewModel.listOfWeatherInfoLiveData.observe(viewLifecycleOwner, Observer { list ->
-            recyclerviewAdapter.initTemperature(list)
+            recyclerviewAdapter.loadCurrentWeatherInfo(list)
         })
 
         binding.weatherDataRecyclerView.adapter = recyclerviewAdapter
@@ -83,9 +82,9 @@ class WeatherInfoFragment : Fragment(), LocationListener {
 
         binding.forecastButton.setOnClickListener {
             val bundle = Bundle()
-            bundle.putDouble("latitude1", latitude)
-            bundle.putDouble("longitude1",longitude)
-            bundle.putString("getCityName", cityName)
+            bundle.putDouble("latitude", latitude)
+            bundle.putDouble("longitude",longitude)
+            bundle.putString("cityName", cityName)
             val weatherDataForecastFragment = WeatherDataForecastFragment()
             weatherDataForecastFragment.arguments= bundle
             val transaction = fragmentManager?.beginTransaction()
@@ -94,8 +93,8 @@ class WeatherInfoFragment : Fragment(), LocationListener {
             transaction?.commit()
         }
         setFragmentResultListener("fragmentKey"){key, bundle->
-            val cityname1 = bundle.getString("getCityNameFromFragment")
-            binding.cityNameTextView.text = cityname1
+            val cityname = bundle.getString("getCityNameFromFragment")
+            binding.cityNameTextView.text = cityname
         }
         requestLocation()
     }
@@ -163,13 +162,13 @@ class WeatherInfoFragment : Fragment(), LocationListener {
     }
 
     private fun getValuesFromSearchLocation(intent: Intent) {
-        var lat = intent.getDoubleExtra("lat", 0.0)
-        var long = intent.getDoubleExtra("long", 0.0)
+        var lat = intent.getDoubleExtra("latKey", 0.0)
+        var long = intent.getDoubleExtra("longKey", 0.0)
         latitude = lat
         longitude = long
 
         getApiDataFromViewModel()
-        val city = intent.getStringExtra("cityName")
+        val city = intent.getStringExtra("cityNameKey")
         binding.cityNameTextView.text = city
         cityName = city.toString()
     }

@@ -1,6 +1,6 @@
 package com.example.weatherApp.retrofit
 
-import com.example.weatherApp.apiResponseDataClasses.FullWeatherDataResponse
+import com.example.weatherApp.apiResponse.FullWeatherDataResponse
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query

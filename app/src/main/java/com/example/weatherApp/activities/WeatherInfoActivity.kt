@@ -11,13 +11,12 @@ import android.os.Bundle
 import androidx.core.app.ActivityCompat
 import java.util.Locale
 import android.location.LocationListener
-import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import com.example.weatherApp.adapter.MainActivityAdapter
+import com.example.weatherApp.adapter.WeatherInfoActivityAdapter
 import com.example.weatherApp.viewmodels.WeatherInfoViewModel
 import com.example.getlocation.databinding.WeatherInfoBinding
 import kotlinx.coroutines.GlobalScope
@@ -28,7 +27,7 @@ class WeatherInfoActivity : AppCompatActivity(), LocationListener {
 
     private lateinit var binding: WeatherInfoBinding
     private val locationPermissionCode = 111
-    private lateinit var recyclerviewAdapter: MainActivityAdapter
+    private lateinit var recyclerviewAdapter: WeatherInfoActivityAdapter
 
     private lateinit var locationManager: LocationManager
     private lateinit var viewModel: WeatherInfoViewModel
@@ -46,7 +45,7 @@ class WeatherInfoActivity : AppCompatActivity(), LocationListener {
 
         binding.weatherDataRecyclerView.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        recyclerviewAdapter = MainActivityAdapter()
+        recyclerviewAdapter = WeatherInfoActivityAdapter()
 
         viewModel = ViewModelProvider(this).get(WeatherInfoViewModel::class.java)
 
@@ -59,7 +58,7 @@ class WeatherInfoActivity : AppCompatActivity(), LocationListener {
 
         binding.weatherDataRecyclerView.adapter = recyclerviewAdapter
         viewModel.listOfWeatherInfoLiveData.observe(this, Observer { list ->
-            recyclerviewAdapter.initTemperature(list)
+            recyclerviewAdapter.loadCurrentWeatherInfo(list)
         })
         binding.weatherDataRecyclerView.adapter = recyclerviewAdapter
 
@@ -70,9 +69,9 @@ class WeatherInfoActivity : AppCompatActivity(), LocationListener {
 
         binding.forecastButton.setOnClickListener {
             var intent = Intent(this, WeatherDataForecastActivity::class.java)
-            intent.putExtra("latitude1", latitude)
-            intent.putExtra("longitude1", longitude)
-            intent.putExtra("getCityName", cityName)
+            intent.putExtra("latitudeKey", latitude)
+            intent.putExtra("longitudeKey", longitude)
+            intent.putExtra("cityNameKey", cityName)
             startActivity(intent)
         }
 
@@ -95,7 +94,6 @@ class WeatherInfoActivity : AppCompatActivity(), LocationListener {
         cityName = city
 
         getApiDataFromViewModel()
-
     }
 
     override fun onRequestPermissionsResult(
@@ -142,13 +140,13 @@ class WeatherInfoActivity : AppCompatActivity(), LocationListener {
     }
 
     private fun getValuesFromSecondActivity(intent: Intent) {
-        var lat = intent.getDoubleExtra("lat", 0.0)
-        var long = intent.getDoubleExtra("long", 0.0)
+        var lat = intent.getDoubleExtra("latKey", 0.0)
+        var long = intent.getDoubleExtra("longKey", 0.0)
         latitude = lat
         longitude = long
 
         getApiDataFromViewModel()
-        val city = intent.getStringExtra("cityName")
+        val city = intent.getStringExtra("cityNameKey")
         binding.cityNameTextView.text = city
         cityName = city.toString()
     }

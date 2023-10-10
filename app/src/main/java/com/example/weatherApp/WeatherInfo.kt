@@ -1,11 +1,9 @@
 package com.example.weatherApp
 
-import android.net.Uri
-
 class WeatherInfo(
 
     var main: String,
-    var icon: Uri,
+    var icon: String,
     var temperature: Double = 0.0
 
 )

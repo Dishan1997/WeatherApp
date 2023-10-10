@@ -1,15 +1,13 @@
-package com.example.weatherApp.activities
+package com.example.weatherApp.fragments
 
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
-import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -40,9 +38,9 @@ class WeatherDataForecastFragment : Fragment() {
         viewModel = ViewModelProvider(this)[WeatherDataForecastViewModel::class.java]
 
         val bundle = arguments
-        val lat = bundle?.getDouble("latitude1")
-        val lon = bundle?.getDouble("longitude1")
-        val cityName = bundle?.getString("getCityName")
+        val lat = bundle?.getDouble("latitude")
+        val lon = bundle?.getDouble("longitude")
+        val cityName = bundle?.getString("cityName")
         binding.cityTextView.text = cityName
 
         binding.weatherHistoryDataRecyclerView.layoutManager =
@@ -59,11 +57,11 @@ class WeatherDataForecastFragment : Fragment() {
             binding.maxTempTextView.text = it.maxTemperature.toString() + "ºC /  "
             binding.minTempTextView.text = it.minTemperature.toString() + "ºC"
             binding.dateTextView.text = it.date
-            var uri = Uri.parse("https://openweathermap.org/img/w/" + it.wetherIcon + ".png")
-            Glide.with(binding.root).load(uri).into(binding.currentWeatherIconImageView)
+            var url = "${ConstantKeys.ICON_URL}" + it.wetherIcon + ".png"
+            Glide.with(binding.root).load(url).into(binding.currentWeatherIconImageView)
         })
          viewModel.weatherLiveData.observe(viewLifecycleOwner, Observer { weatherData ->
-            recyclerviewAdapter.initWeather(weatherData)
+            recyclerviewAdapter.loadWeatherData(weatherData)
 
         })
         binding.weatherHistoryDataRecyclerView.adapter = recyclerviewAdapter

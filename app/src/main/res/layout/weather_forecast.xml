@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/weather_forecast_bg"
-        tools:context=".activities.WeatherDataHistoryActivity">
+        tools:context=".activities.WeatherDataForecastActivity">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/weatherHistoryDataRecyclerView"

@@ -22,29 +22,25 @@ class SearchLocationActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(this).get(SearchLocationViewModel::class.java)
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val intent = PlaceAutocomplete.IntentBuilder()
-                .accessToken(ConstantKeys.accessToken)
-                .placeOptions(null)
-                .build(this@SearchLocationActivity)
-            startActivityForResult(intent, 111)
-
-        }
+        val intent = PlaceAutocomplete.IntentBuilder()
+            .accessToken(ConstantKeys.accessToken)
+            .placeOptions(null)
+            .build(this@SearchLocationActivity)
+        startActivityForResult(intent, 111)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         viewModel.getDataFromLocationSearch(requestCode, resultCode, data)
-        val locationData = viewModel.res
+        val locationData = viewModel.getDataFromLocationSearch(requestCode, resultCode, data)
 
         var intent = Intent()
-        intent.putExtra("lat", locationData.lat)
-        intent.putExtra("long", locationData.long)
-        intent.putExtra("cityName", locationData.cityName)
+        intent.putExtra("latKey", locationData.lat)
+        intent.putExtra("longKey", locationData.long)
+        intent.putExtra("cityNameKey", locationData.cityName)
         setResult(300, intent)
         finish()
     }
-
 
 }

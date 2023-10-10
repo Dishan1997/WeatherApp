@@ -6,11 +6,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.getlocation.databinding.DisplayWeatherForecastBinding
-import com.example.weatherApp.apiResponseDataClasses.HourlyWeatherInfoResponse
+import com.example.weatherApp.ConstantKeys
+import com.example.weatherApp.apiResponse.HourlyWeatherInfoResponse
 
 import java.text.SimpleDateFormat
 
-class ThirdActivityAdapter() : RecyclerView.Adapter<TemperatureViewHolder>() {
+class WeatherDataForecastActivityAdapter() : RecyclerView.Adapter<TemperatureViewHolder>() {
 
     var tempHistoryList: List<HourlyWeatherInfoResponse> = listOf()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TemperatureViewHolder {
@@ -29,7 +30,7 @@ class ThirdActivityAdapter() : RecyclerView.Adapter<TemperatureViewHolder>() {
         val temperatureHistory = tempHistoryList[position]
         holder.bind(temperatureHistory)
     }
-    fun initWeather(newList: List<HourlyWeatherInfoResponse>) {
+    fun loadWeatherData(newList: List<HourlyWeatherInfoResponse>) {
         tempHistoryList = newList
         notifyDataSetChanged()
     }
@@ -61,8 +62,8 @@ class TemperatureViewHolder(val binding: DisplayWeatherForecastBinding) :
 
         binding.typeWeatherTextView.text = temp.weather[0].main
         val icon = temp.weather[0].icon
-        var uri = Uri.parse("https://openweathermap.org/img/w/" + icon + ".png")
-        Glide.with(binding.root).load(uri).into(binding.weatherIconImageView)
+        var url = "${ConstantKeys.ICON_URL}" + icon + ".png"
+        Glide.with(binding.root).load(url).into(binding.weatherIconImageView)
 
     }
 }

@@ -5,13 +5,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherApp.realm.WeatherForecastInfo
-import com.example.weatherApp.apiResponseDataClasses.HourlyWeatherInfoResponse
+import com.example.weatherApp.apiResponse.HourlyWeatherInfoResponse
 import com.example.weatherApp.retrofit.RetrofitInstance
-import com.example.weatherApp.apiResponseDataClasses.FullWeatherDataResponse
+import com.example.weatherApp.apiResponse.FullWeatherDataResponse
 import com.example.weatherApp.retrofit.weatherResponseService
-import com.example.weatherApp.apiResponseDataClasses.TemperatureValueResponse
-import com.example.weatherApp.apiResponseDataClasses.WeatherResponse
-import com.example.weatherApp.apiResponseDataClasses.WindResponse
+import com.example.weatherApp.apiResponse.TemperatureValueResponse
+import com.example.weatherApp.apiResponse.WeatherResponse
+import com.example.weatherApp.apiResponse.WindResponse
 import io.realm.Realm
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,7 +31,6 @@ class WeatherDataForecastViewModel : ViewModel() {
     private var weatherInfo: MutableLiveData<com.example.weatherApp.WeatherForecastInfo> = MutableLiveData()
     val weatherInfoLiveData: LiveData<com.example.weatherApp.WeatherForecastInfo>
         get() = weatherInfo
-
 
     init {
         temperatureServices =
@@ -119,9 +118,6 @@ class WeatherDataForecastViewModel : ViewModel() {
     }
 
     fun getDataFromRealm(): List<HourlyWeatherInfoResponse> {
-        viewModelScope.launch {
-            val realm = Realm.getDefaultInstance()
-        }
         val results = realm.where(WeatherForecastInfo::class.java).findAll()
         val weatherInfoList = mutableListOf<HourlyWeatherInfoResponse>()
         results.forEach { item ->

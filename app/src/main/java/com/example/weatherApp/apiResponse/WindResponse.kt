@@ -1,4 +1,4 @@
-package com.example.weatherApp.apiResponseDataClasses
+package com.example.weatherApp.apiResponse
 
 data class WindResponse(
     val speed: Double

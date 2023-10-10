@@ -10,8 +10,10 @@ import org.json.JSONObject
 
 class SearchLocationViewModel : ViewModel() {
 
-    lateinit var res: LocationSearchData
-    fun getDataFromLocationSearch(requestCode: Int, resultCode: Int, data: Intent?) {
+
+    fun getDataFromLocationSearch(requestCode: Int, resultCode: Int, data: Intent?) : LocationSearchData {
+         var res = LocationSearchData(0.0, 0.0, "")
+
         if (resultCode == Activity.RESULT_OK && requestCode == 111) {
             val feature = PlaceAutocomplete.getPlace(data)
             val jsonString = feature.toJson()
@@ -20,24 +22,19 @@ class SearchLocationViewModel : ViewModel() {
             val point = geo.getJSONArray("coordinates")
             var cityName = ""
 
-            try {
+            if(jsonObject != null && point!= null) {
                 val context = jsonObject.getJSONArray("context")
                 val carmenContext = context[1] as JSONObject
                 cityName = carmenContext.getString("text")
-            } catch (exception: Exception) {
-                Log.i("mytag", exception.message.toString())
-            }
-
-            try {
                 val long: Double = point.get(0) as Double
                 val lat: Double = point.get(1) as Double
                 res = LocationSearchData(lat, long, cityName)
 
-            } catch (e: Exception) {
-                Log.i("mytag", e.message.toString())
+            } else{
+                Log.i("mytag", "no json data found")
             }
-
         }
+        return res
     }
 
 

@@ -1,20 +1,18 @@
 package com.example.weatherApp.viewmodels
 
-import android.net.Uri
 import android.util.Log
-import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherApp.ConstantKeys
-import com.example.weatherApp.CurrentWeatherInfo
-import com.example.weatherApp.HourlyWeatherInfo
-import com.example.weatherApp.apiResponseDataClasses.HourlyWeatherInfoResponse
+import com.example.weatherApp.realm.CurrentWeatherInfo
+import com.example.weatherApp.realm.HourlyWeatherInfo
+import com.example.weatherApp.apiResponse.HourlyWeatherInfoResponse
 import com.example.weatherApp.WeatherInfo
-import com.example.weatherApp.apiResponseDataClasses.TemperatureValueResponse
-import com.example.weatherApp.apiResponseDataClasses.WeatherResponse
-import com.example.weatherApp.apiResponseDataClasses.WindResponse
+import com.example.weatherApp.apiResponse.TemperatureValueResponse
+import com.example.weatherApp.apiResponse.WeatherResponse
+import com.example.weatherApp.apiResponse.WindResponse
 import com.example.weatherApp.realm.WeatherForecastInfo
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -32,6 +30,7 @@ import java.net.URL
 
 class WeatherInfoViewModel : ViewModel() {
 
+    private val realm = Realm.getDefaultInstance()
     private var weatherInfo: MutableLiveData<WeatherInfo> = MutableLiveData()
     private var listOfWeatherInfos: MutableLiveData<List<HourlyWeatherInfoResponse>> =
         MutableLiveData()
@@ -47,7 +46,7 @@ class WeatherInfoViewModel : ViewModel() {
         var httpURLConnection: HttpURLConnection? = null
         try {
             val url =
-                URL("https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$long&appid=${ConstantKeys.appid}")
+                URL("${ConstantKeys.BASE_URLforCurrentData}lat=$lat&lon=$long&appid=${ConstantKeys.appid}")
             httpURLConnection = url.openConnection() as HttpURLConnection
             val code = httpURLConnection.responseCode
             if (code != 200) {
@@ -70,17 +69,19 @@ class WeatherInfoViewModel : ViewModel() {
             val temperature = mainData.getDouble("temp")
             var c = temperature - 273.15
             val celcius = String.format("%.2f", c)
-            var uri = Uri.parse("https://openweathermap.org/img/w/" + icon + ".png")
+            var iconUrl = "${ConstantKeys.ICON_URL}" + icon + ".png"
             viewModelScope.launch(Dispatchers.Main) {
-                weatherInfo.value = WeatherInfo(main, uri, celcius.toDouble())
+                weatherInfo.value = WeatherInfo(main, iconUrl, celcius.toDouble())
             }
-            val currentWeatherData = WeatherInfo(main, uri, celcius.toDouble())
+            viewModelScope.launch(Dispatchers.Main) {
+                val currentWeatherData = WeatherInfo(main, iconUrl, celcius.toDouble())
+                saveCurrentDataToRealm(currentWeatherData)
+            }
 
-            saveCurrentDataToRealm(currentWeatherData)
 
         } catch (ioexception: IOException) {
             Log.e(this.javaClass.name, ioexception.message.toString())
-            viewModelScope.launch(Dispatchers.Main){
+            viewModelScope.launch(Dispatchers.Main) {
                 val realmData = getCurrentDataFromRealm()
                 weatherInfo.value = realmData
             }
@@ -89,30 +90,41 @@ class WeatherInfoViewModel : ViewModel() {
         }
     }
 
-    private fun saveCurrentDataToRealm(weatherData : WeatherInfo) {
-        val realmObject = CurrentWeatherInfo()
-        realmObject.icon = weatherData.icon.toString()
-        realmObject.temperatureType = weatherData.main
-        realmObject.temperature = weatherData.temperature
+    private fun saveCurrentDataToRealm(weatherData: WeatherInfo) {
+
+        realm.executeTransaction { realm ->
+            realm.where(CurrentWeatherInfo::class.java).findAll().deleteAllFromRealm()
+            val realmObject = CurrentWeatherInfo()
+            realmObject.icon = weatherData.icon.toString()
+            realmObject.temperatureType = weatherData.main
+            realmObject.temperature = weatherData.temperature
+            realm.copyToRealm(realmObject)
+        }
     }
 
-    private fun saveHourlyDataToRealm(weatherData :List<HourlyWeatherInfoResponse>) {
-      weatherData.forEach{item->
-       val realmObject = HourlyWeatherInfo()
-          realmObject.time = item.dt_txt
-          realmObject.icon = item.weather[0].icon
-          realmObject.temperature = item.main.temp
-          realmObject.windSpeed = item.wind.speed
-      }
+    private fun saveHourlyDataToRealm(weatherData: List<HourlyWeatherInfoResponse>) {
+
+
+        realm.executeTransaction { realm ->
+            realm.where(HourlyWeatherInfo::class.java).findAll().deleteAllFromRealm()
+            weatherData.forEach { item ->
+                val realmObject = HourlyWeatherInfo()
+                realmObject.time = item.dt_txt
+                realmObject.icon = item.weather[0].icon
+                realmObject.temperature = item.main.temp
+                realmObject.windSpeed = item.wind.speed
+                realm.copyToRealm(realmObject)
+            }
+        }
     }
 
 
     suspend fun fetchWeatherInfoHourly(lat: Double, long: Double) {
-        var newList: List<HourlyWeatherInfoResponse> = listOf()
+        var weatherDataList: List<HourlyWeatherInfoResponse> = listOf()
         var httpURLConnection: HttpURLConnection? = null
         try {
             val url =
-                URL("https://api.openweathermap.org/data/2.5/forecast?lat=$lat&lon=$long&appid=${ConstantKeys.appid}")
+                URL("${ConstantKeys.BASE_URLforHourlyData}lat=$lat&lon=$long&appid=${ConstantKeys.appid}")
             httpURLConnection = url.openConnection() as HttpURLConnection
             val code = httpURLConnection.responseCode
             if (code != 200) {
@@ -129,17 +141,16 @@ class WeatherInfoViewModel : ViewModel() {
             val jsonObject = JSONObject(jsonStringHolder.toString())
             val weatherList = jsonObject.getJSONArray("list")
             val type: Type = object : TypeToken<List<HourlyWeatherInfoResponse?>?>() {}.type
-            newList = Gson().fromJson(weatherList.toString(), type)
-
-            saveHourlyDataToRealm(newList)
+            weatherDataList = Gson().fromJson(weatherList.toString(), type)
 
             viewModelScope.launch(Dispatchers.Main) {
-                listOfWeatherInfos.value = newList
+                saveHourlyDataToRealm(weatherDataList)
+                listOfWeatherInfos.value = weatherDataList
             }
 
         } catch (ioexception: IOException) {
             Log.e(this.javaClass.name, ioexception.message.toString())
-            viewModelScope.launch (Dispatchers.Main){
+            viewModelScope.launch(Dispatchers.Main) {
                 val realmData = getHourlyDataFromRealm()
                 listOfWeatherInfos.value = realmData
             }
@@ -172,15 +183,16 @@ class WeatherInfoViewModel : ViewModel() {
     fun getCurrentDataFromRealm(): WeatherInfo {
         var realm = Realm.getDefaultInstance()
         val results = realm.where(WeatherForecastInfo::class.java).findAll()
-        var currentWeatherdata = WeatherInfo("", Uri.EMPTY, 0.0)
+        var currentWeatherdata = WeatherInfo("", "", 0.0)
         results.forEach { item ->
             val currentWeather = WeatherInfo(
-                item.temperatureType, item.icon.toUri(), item.temperature
+                item.temperatureType, item.icon, item.temperature
             )
             currentWeatherdata = currentWeather
         }
         return currentWeatherdata
     }
+
     override fun onCleared() {
         super.onCleared()
         var realm = Realm.getDefaultInstance()
