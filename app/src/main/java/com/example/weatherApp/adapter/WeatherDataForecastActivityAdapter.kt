@@ -1,6 +1,5 @@
 package com.example.weatherApp.adapter
 
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -13,7 +12,7 @@ import java.text.SimpleDateFormat
 
 class WeatherDataForecastActivityAdapter() : RecyclerView.Adapter<TemperatureViewHolder>() {
 
-    var tempHistoryList: List<HourlyWeatherInfoResponse> = listOf()
+    private var weatherHistoryList: List<HourlyWeatherInfoResponse> = listOf()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TemperatureViewHolder {
         return TemperatureViewHolder(
             DisplayWeatherForecastBinding.inflate(
@@ -24,14 +23,14 @@ class WeatherDataForecastActivityAdapter() : RecyclerView.Adapter<TemperatureVie
         )
     }
     override fun getItemCount(): Int {
-        return tempHistoryList.size
+        return weatherHistoryList.size
     }
     override fun onBindViewHolder(holder: TemperatureViewHolder, position: Int) {
-        val temperatureHistory = tempHistoryList[position]
+        val temperatureHistory = weatherHistoryList[position]
         holder.bind(temperatureHistory)
     }
     fun loadWeatherData(newList: List<HourlyWeatherInfoResponse>) {
-        tempHistoryList = newList
+        weatherHistoryList = newList
         notifyDataSetChanged()
     }
 }

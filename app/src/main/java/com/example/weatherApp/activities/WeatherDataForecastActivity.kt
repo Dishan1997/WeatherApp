@@ -10,10 +10,12 @@ import com.example.getlocation.databinding.WeatherForecastBinding
 import com.example.weatherApp.ConstantKeys
 import com.example.weatherApp.adapter.WeatherDataForecastActivityAdapter
 import com.example.weatherApp.viewmodels.WeatherDataForecastViewModel
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class WeatherDataForecastActivity : AppCompatActivity() {
     private lateinit var binding: WeatherForecastBinding
-    private lateinit var recyclerviewAdapter: WeatherDataForecastActivityAdapter
+    private var recyclerviewAdapter= WeatherDataForecastActivityAdapter()
     private lateinit var viewModel: WeatherDataForecastViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,7 +25,7 @@ class WeatherDataForecastActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(this)[WeatherDataForecastViewModel::class.java]
 
-         val intent = getIntent()
+        val intent = getIntent()
         val lat = intent.getDoubleExtra(ConstantKeys.KEY_LATITUDE, 0.0)
         val lon = intent.getDoubleExtra(ConstantKeys.KEY_LONGITUDE, 0.0)
         val cityName = intent.getStringExtra(ConstantKeys.KEY_CITY_NAME)
@@ -33,7 +35,9 @@ class WeatherDataForecastActivity : AppCompatActivity() {
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerviewAdapter = WeatherDataForecastActivityAdapter()
 
-        viewModel.fetchWeatherForecastAndSaveToRealm(lat, lon, ConstantKeys.APP_ID)
+        GlobalScope.launch {
+            viewModel.getWeatherForecast(lat, lon)
+        }
 
         viewModel.weatherInfoLiveData.observe(this, Observer {
             binding.tempTextView.text = it.temperature.toString()
@@ -47,7 +51,6 @@ class WeatherDataForecastActivity : AppCompatActivity() {
 
         viewModel.weatherLiveData.observe(this, Observer { weatherData ->
             recyclerviewAdapter.loadWeatherData(weatherData)
-
         })
         binding.weatherHistoryDataRecyclerView.adapter = recyclerviewAdapter
     }

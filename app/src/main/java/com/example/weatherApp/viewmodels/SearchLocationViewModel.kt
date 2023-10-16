@@ -5,6 +5,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.weatherApp.LocationSearchData
+import com.example.weatherApp.activities.SearchLocationActivity
 import com.mapbox.mapboxsdk.plugins.places.autocomplete.PlaceAutocomplete
 import org.json.JSONObject
 
@@ -14,7 +15,7 @@ class SearchLocationViewModel : ViewModel() {
     fun getDataFromLocationSearch(requestCode: Int, resultCode: Int, data: Intent?) : LocationSearchData {
          var res = LocationSearchData(0.0, 0.0, "")
 
-        if (resultCode == Activity.RESULT_OK && requestCode == 111) {
+        if (resultCode == Activity.RESULT_OK && requestCode == SearchLocationActivity.requestCode) {
             val feature = PlaceAutocomplete.getPlace(data)
             val jsonString = feature.toJson()
             val jsonObject = JSONObject(jsonString)
@@ -30,8 +31,6 @@ class SearchLocationViewModel : ViewModel() {
                 val lat: Double = point.get(1) as Double
                 res = LocationSearchData(lat, long, cityName)
 
-            } else{
-                Log.i("mytag", "no json data found")
             }
         }
         return res

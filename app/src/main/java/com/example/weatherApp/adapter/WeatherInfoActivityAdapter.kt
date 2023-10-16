@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat
 
 class WeatherInfoActivityAdapter() : RecyclerView.Adapter<MyViewHolder>() {
 
-    private var tempList: List<HourlyWeatherInfoResponse> = listOf()
+    private var temperatureList: List<HourlyWeatherInfoResponse> = listOf()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         return MyViewHolder(
             DisplayWeatherInfoBinding.inflate(
@@ -23,16 +23,16 @@ class WeatherInfoActivityAdapter() : RecyclerView.Adapter<MyViewHolder>() {
     }
 
     override fun getItemCount(): Int {
-        return tempList.size
+        return temperatureList.size
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        val temperature = tempList[position]
+        val temperature = temperatureList[position]
         holder.bind(temperature)
     }
 
     fun loadCurrentWeatherInfo(newTempList: List<HourlyWeatherInfoResponse>) {
-        tempList = newTempList
+        temperatureList = newTempList
         notifyDataSetChanged()
     }
 }

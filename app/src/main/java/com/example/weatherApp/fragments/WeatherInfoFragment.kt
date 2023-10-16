@@ -15,7 +15,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,18 +23,17 @@ import com.example.getlocation.R
 import com.example.getlocation.databinding.WeatherInfoBinding
 import com.example.weatherApp.ConstantKeys
 import com.example.weatherApp.activities.SearchLocationActivity
+import com.example.weatherApp.activities.WeatherInfoActivity
 import com.example.weatherApp.adapter.WeatherInfoActivityAdapter
+import com.example.weatherApp.viewModelFactory.WeatherInfoViewModelFactory
 import com.example.weatherApp.viewmodels.WeatherInfoViewModel
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.util.Locale
 
 class WeatherInfoFragment : Fragment(), LocationListener {
-    private var _binding: WeatherInfoBinding? = null
-    private val binding get() = _binding!!
-    private val locationPermissionCode = 111
-    private lateinit var recyclerviewAdapter: WeatherInfoActivityAdapter
-
+    private var binding: WeatherInfoBinding? = null
+    private var recyclerviewAdapter= WeatherInfoActivityAdapter()
     private lateinit var locationManager: LocationManager
     private lateinit var viewModel: WeatherInfoViewModel
 
@@ -47,41 +45,38 @@ class WeatherInfoFragment : Fragment(), LocationListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding= WeatherInfoBinding.inflate(inflater, container, false)
-        return binding.root
+        binding= WeatherInfoBinding.inflate(inflater, container, false)
+        return binding?.root
     }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         requestLocationPermission()
-        binding.weatherDataRecyclerView.layoutManager =
+        binding?.weatherDataRecyclerView?.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        recyclerviewAdapter = WeatherInfoActivityAdapter()
-        viewModel = ViewModelProvider(this).get(WeatherInfoViewModel::class.java)
+
+        activity?.let{
+            viewModel = ViewModelProvider(it, WeatherInfoViewModelFactory()).get(WeatherInfoViewModel::class.java)
+        }
 
         viewModel.weatherInfoLiveData.observe(viewLifecycleOwner, Observer {
-            binding.cityNameTextView
-            binding.weatherTypeTextView.text = it.main
-            binding.temperatureTextView.text = it.temperature.toString() + "ºC"
-            Glide.with(this).load(it.icon).into(binding.weatherImageView)
+            binding?.cityNameTextView?.text = cityName
+            binding?.weatherTypeTextView?.text = it.main
+            binding?.temperatureTextView?.text = it.temperature.toString() + "ºC"
+            Glide.with(this).load(it.icon).into(binding?.weatherImageView!!)
         })
 
-        binding.weatherDataRecyclerView.adapter = recyclerviewAdapter
+        binding?.weatherDataRecyclerView?.adapter = recyclerviewAdapter
         viewModel.listOfWeatherInfoLiveData.observe(viewLifecycleOwner, Observer { list ->
             recyclerviewAdapter.loadCurrentWeatherInfo(list)
         })
-
-        binding.weatherDataRecyclerView.adapter = recyclerviewAdapter
-
-
-        binding.searchCityButton.setOnClickListener {
+        binding?.searchCityButton?.setOnClickListener {
            var intent = Intent(activity, SearchLocationActivity::class.java)
-            startActivityForResult(intent, 300)
+            startActivityForResult(intent, WeatherInfoActivity.requestCode)
         }
 
-        binding.forecastButton.setOnClickListener {
+        binding?.forecastButton?.setOnClickListener {
             val bundle = Bundle()
             bundle.putDouble(ConstantKeys.KEY_LATITUDE, latitude)
             bundle.putDouble(ConstantKeys.KEY_LONGITUDE,longitude)
@@ -93,16 +88,12 @@ class WeatherInfoFragment : Fragment(), LocationListener {
             transaction?.addToBackStack(null)
             transaction?.commit()
         }
-        setFragmentResultListener(ConstantKeys.FRAGMENT_KEY){key, bundle->
-            val cityname = bundle.getString(ConstantKeys.KEY_CITY_NAME)
-            binding.cityNameTextView.text = cityname
-        }
         requestLocation()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 300 && data != null) {
+        if (requestCode == WeatherInfoActivity.requestCode && data != null) {
             getValuesFromSearchLocation(data)
         }
     }
@@ -110,7 +101,7 @@ class WeatherInfoFragment : Fragment(), LocationListener {
         latitude = location.latitude
         longitude = location.longitude
         val city = getCityName(location.latitude, location.longitude)
-        binding.cityNameTextView.text = city
+        binding?.cityNameTextView?.text = city
         cityName = city
         getApiDataFromViewModel()
     }
@@ -121,7 +112,7 @@ class WeatherInfoFragment : Fragment(), LocationListener {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == locationPermissionCode) {
+        if (requestCode == ConstantKeys.LOCATION_PERMISSION_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 requestLocation()
             }
@@ -157,7 +148,7 @@ class WeatherInfoFragment : Fragment(), LocationListener {
         {
             requestPermissions(
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                locationPermissionCode
+                ConstantKeys.LOCATION_PERMISSION_CODE
             )
         }
     }
@@ -170,7 +161,7 @@ class WeatherInfoFragment : Fragment(), LocationListener {
 
         getApiDataFromViewModel()
         val city = intent.getStringExtra(ConstantKeys.KEY_CITY_NAME)
-        binding.cityNameTextView.text = city
+        binding?.cityNameTextView?.text = city
         cityName = city.toString()
     }
     private fun getApiDataFromViewModel() {
@@ -179,7 +170,6 @@ class WeatherInfoFragment : Fragment(), LocationListener {
             viewModel.fetchWeatherInfo(latitude, longitude)
         }
     }
-
     private fun getCityName(lat: Double, long: Double): String {
 
         var city: String = ""
@@ -192,6 +182,4 @@ class WeatherInfoFragment : Fragment(), LocationListener {
         city = address.locality.toString()
         return city
     }
-
-
 }

@@ -2,7 +2,7 @@ package com.example.weatherApp.realm
 
 import io.realm.RealmObject
 
-open class WeatherForecastInfo : RealmObject() {
+open class WeatherForecast : RealmObject() {
     var date: String = ""
     var time: String = ""
     var icon: String = ""

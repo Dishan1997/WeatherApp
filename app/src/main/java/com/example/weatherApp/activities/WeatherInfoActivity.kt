@@ -27,16 +27,19 @@ import kotlinx.coroutines.launch
 class WeatherInfoActivity : AppCompatActivity(), LocationListener {
 
     private lateinit var binding: WeatherInfoBinding
-    private val locationPermissionCode = 111
-    private lateinit var recyclerviewAdapter: WeatherInfoActivityAdapter
+    private var recyclerviewAdapter= WeatherInfoActivityAdapter()
 
     private lateinit var locationManager: LocationManager
     private lateinit var viewModel: WeatherInfoViewModel
 
-
     private var cityName = ""
     private var latitude = 0.0
     private var longitude = 0.0
+
+    companion object
+    {
+        const val requestCode = 300
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = WeatherInfoBinding.inflate(layoutInflater)
@@ -61,11 +64,10 @@ class WeatherInfoActivity : AppCompatActivity(), LocationListener {
         viewModel.listOfWeatherInfoLiveData.observe(this, Observer { list ->
             recyclerviewAdapter.loadCurrentWeatherInfo(list)
         })
-        binding.weatherDataRecyclerView.adapter = recyclerviewAdapter
 
         binding.searchCityButton.setOnClickListener {
             var intent = Intent(this, SearchLocationActivity::class.java)
-            startActivityForResult(intent, 300)
+            startActivityForResult(intent, requestCode)
         }
 
         binding.forecastButton.setOnClickListener {
@@ -82,7 +84,7 @@ class WeatherInfoActivity : AppCompatActivity(), LocationListener {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 300 && data != null) {
+        if (requestCode == requestCode && data != null) {
             getValuesFromSecondActivity(data)
         }
     }
@@ -104,7 +106,7 @@ class WeatherInfoActivity : AppCompatActivity(), LocationListener {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        if (requestCode == locationPermissionCode) {
+        if (requestCode == ConstantKeys.LOCATION_PERMISSION_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 requestLocation()
             }
@@ -135,7 +137,7 @@ class WeatherInfoActivity : AppCompatActivity(), LocationListener {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
-                locationPermissionCode
+                ConstantKeys.LOCATION_PERMISSION_CODE
             )
         }
     }

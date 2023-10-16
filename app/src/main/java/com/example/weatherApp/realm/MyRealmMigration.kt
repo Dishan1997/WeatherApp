@@ -17,7 +17,7 @@ class MyRealmMigration : RealmMigration {
         }
         if (oldVersion == 0L && newVersion == 1L) {
             val currentWeatherInfoClass = schema.get("WeatherForecastInfo")
-            currentWeatherInfoClass?.addField("newField", WeatherForecastInfo::class.java)
+            currentWeatherInfoClass?.addField("newField", WeatherForecast::class.java)
         }
 
     }

@@ -12,6 +12,9 @@ import com.mapbox.mapboxsdk.plugins.places.autocomplete.PlaceAutocomplete
 class SearchLocationActivity : AppCompatActivity() {
     private lateinit var binding: SearchLocationBinding
     private lateinit var viewModel: SearchLocationViewModel
+    companion object{
+       const val requestCode = 111
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = SearchLocationBinding.inflate(layoutInflater)
@@ -23,7 +26,7 @@ class SearchLocationActivity : AppCompatActivity() {
             .accessToken(ConstantKeys.ACCESS_TOKEN)
             .placeOptions(null)
             .build(this@SearchLocationActivity)
-        startActivityForResult(intent, 111)
+        startActivityForResult(intent, requestCode)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -36,7 +39,7 @@ class SearchLocationActivity : AppCompatActivity() {
         intent.putExtra(ConstantKeys.KEY_LATITUDE, locationData.lat)
         intent.putExtra(ConstantKeys.KEY_LONGITUDE, locationData.long)
         intent.putExtra(ConstantKeys.KEY_CITY_NAME, locationData.cityName)
-        setResult(300, intent)
+        setResult(WeatherInfoActivity.requestCode, intent)
         finish()
     }
 

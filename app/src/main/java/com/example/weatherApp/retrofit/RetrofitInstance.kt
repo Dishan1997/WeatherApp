@@ -1,5 +1,6 @@
 package com.example.weatherApp.retrofit
 
+import com.example.weatherApp.ConstantKeys
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -9,7 +10,7 @@ import java.util.concurrent.TimeUnit
 
 class RetrofitInstance {
     companion object {
-        val BASE_URL = "https://api.openweathermap.org/"
+        val BASE_URL = ConstantKeys.BASE_URL
         val interceptor = HttpLoggingInterceptor().apply {
             this.level = HttpLoggingInterceptor.Level.BODY
         }

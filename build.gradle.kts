@@ -8,7 +8,6 @@ plugins {
 
 buildscript{
     dependencies{
-        // classpath ("io.realm:realm-gradle-plugin:10.7.0")
         classpath ("io.realm:realm-gradle-plugin:10.13.3-transformer-api")
 
     }
