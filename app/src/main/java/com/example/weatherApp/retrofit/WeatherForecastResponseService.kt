@@ -13,6 +13,7 @@ interface WeatherForecastResponseService {
         @Query("lon") lon: Double,
         @Query("appid") appid: String
     ): Response<FullWeatherDataResponse>
+
     companion object{
         private var instance : WeatherForecastResponseService? = null
         fun getInstance(): WeatherForecastResponseService{

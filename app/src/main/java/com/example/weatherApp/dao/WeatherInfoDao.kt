@@ -12,37 +12,44 @@ import io.realm.Realm
 
 class WeatherInfoDao {
     private val realm = Realm.getDefaultInstance()
-    fun getCurrentDataFromRealm(): WeatherInfo {
+    fun getCurrentDataFromRealm(): WeatherInfo? {
         var realm = Realm.getDefaultInstance()
         val results = realm.where(WeatherForecast::class.java).findAll()
-        var currentWeatherdata = WeatherInfo("", "", 0.0)
-        results.forEach { item ->
-            val currentWeather = WeatherInfo(
-                item.temperatureType, item.icon, item.temperature
-            )
-            currentWeatherdata = currentWeather
+        var size = results.size
+        if(results!=null) {
+            val temperatureType= results[size-1]?.temperatureType ?: ""
+            val icon = results[size-1]?.icon ?: ""
+            val temperature = results[size-1]?.temperature ?: 0.0
+
+                val currentWeather = WeatherInfo(
+                    temperatureType, icon, temperature
+                )
+            return currentWeather
         }
-        return currentWeatherdata
+        return null
     }
 
-    fun getHourlyDataFromRealm(): List<HourlyWeatherInfoResponse> {
+    fun getHourlyDataFromRealm(): List<HourlyWeatherInfoResponse>? {
        var realm = Realm.getDefaultInstance()
         val results = realm.where(WeatherForecast::class.java).findAll()
         val weatherInfoList = mutableListOf<HourlyWeatherInfoResponse>()
-        results.forEach { item ->
-            val hourlyWeather = HourlyWeatherInfoResponse(
-                TemperatureValueResponse(
-                    item.temperature,
-                    item.minTemperature,
-                    item.maxTemperature
-                ),
-                listOf(WeatherResponse(item.temperatureType, item.icon)),
-                WindResponse(item.windSpeed),
-                item.date
-            )
-            weatherInfoList.add(hourlyWeather)
+        if(results.isNotEmpty()) {
+            results.forEach { item ->
+                val hourlyWeather = HourlyWeatherInfoResponse(
+                    TemperatureValueResponse(
+                        item.temperature,
+                        item.minTemperature,
+                        item.maxTemperature
+                    ),
+                    listOf(WeatherResponse(item.temperatureType, item.icon)),
+                    WindResponse(item.windSpeed),
+                    item.date
+                )
+                weatherInfoList.add(hourlyWeather)
+            }
+            return weatherInfoList
         }
-        return weatherInfoList
+        return null
     }
 
      fun saveCurrentDataToRealm(weatherData: WeatherInfo) {

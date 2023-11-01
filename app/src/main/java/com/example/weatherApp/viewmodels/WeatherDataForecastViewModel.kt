@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.weatherApp.ConstantKeys
 import com.example.weatherApp.WeatherForecastInfo
 import com.example.weatherApp.realm.WeatherForecast
 import com.example.weatherApp.apiResponse.HourlyWeatherInfoResponse
@@ -23,10 +24,15 @@ class WeatherDataForecastViewModel(private val repository : WeatherForecastRepos
         get() = weatherInfo
     suspend fun getWeatherForecast(lat: Double, lon: Double) {
         viewModelScope.launch {
-                repository.fetchWeatherForecast(lat, lon)?.let{
-                    weatherData.value = it
-                    setDataOnViews(it)
-                }
+               val weatherForecast = repository.fetchWeatherForecast(lat, lon)
+            if(weatherForecast != null){
+                    weatherData.value = weatherForecast!!
+                    setDataOnViews(weatherForecast)
+                }else{
+                   val realmData = repository.getRealmData()
+                weatherData.value = realmData!!
+                setDataOnViews(realmData)
+            }
         }
     }
 

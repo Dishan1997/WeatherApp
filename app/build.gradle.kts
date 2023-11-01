@@ -95,4 +95,23 @@ dependencies {
     val fragment_version = "1.6.1"
     implementation("androidx.fragment:fragment-ktx:$fragment_version")
 
+    //testing
+    val arch_version = "2.2.0"
+    val coroutines_version = "1.3.9"
+    androidTestImplementation("androidx.test:core-ktx:1.5.0")
+    androidTestImplementation("androidx.test:runner:1.5.1")
+    androidTestImplementation("androidx.test:rules:1.5.0")
+    testImplementation("androidx.arch.core:core-testing:$arch_version")
+    testImplementation ("androidx.lifecycle:lifecycle-runtime-testing:$lifecycle_version")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version")
+    testImplementation("com.squareup.retrofit2:retrofit:2.3.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
+    testImplementation("org.mockito:mockito-inline:2.13.0")
+    implementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
+    testImplementation("org.json:json:20140107")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version")
+    implementation("com.squareup.okhttp3:mockwebserver3:5.0.0-alpha.2")
+    testImplementation("com.squareup.okhttp3:mockwebserver3:5.0.0-alpha.2")
+
 }

@@ -9,23 +9,26 @@ import io.realm.Realm
 
 class WeatherForecastDao {
     private val realm = Realm.getDefaultInstance()
-    fun getDataFromRealm(): List<HourlyWeatherInfoResponse> {
+    fun getDataFromRealm(): List<HourlyWeatherInfoResponse>? {
         val results = realm.where(WeatherForecast::class.java).findAll()
         val weatherInfoList = mutableListOf<HourlyWeatherInfoResponse>()
-        results.forEach { item ->
-            val hourlyWeather = HourlyWeatherInfoResponse(
-                TemperatureValueResponse(
-                    item.temperature,
-                    item.minTemperature,
-                    item.maxTemperature
-                ),
-                listOf(WeatherResponse(item.temperatureType, item.icon)),
-                WindResponse(item.windSpeed),
-                item.date
-            )
-            weatherInfoList.add(hourlyWeather)
+        if(results.isNotEmpty()) {
+            results.forEach { item ->
+                val hourlyWeather = HourlyWeatherInfoResponse(
+                    TemperatureValueResponse(
+                        item.temperature,
+                        item.minTemperature,
+                        item.maxTemperature
+                    ),
+                    listOf(WeatherResponse(item.temperatureType, item.icon)),
+                    WindResponse(item.windSpeed),
+                    item.date
+                )
+                weatherInfoList.add(hourlyWeather)
+            }
+            return weatherInfoList
         }
-        return weatherInfoList
+        return null
     }
 
     fun setDataToRealm(weatherResponse : List<HourlyWeatherInfoResponse>){

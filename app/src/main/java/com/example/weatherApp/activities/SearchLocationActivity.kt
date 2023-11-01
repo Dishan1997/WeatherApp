@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.weatherApp.ConstantKeys
 import com.example.weatherApp.viewmodels.SearchLocationViewModel
 import com.example.getlocation.databinding.SearchLocationBinding
+import com.example.weatherApp.viewModelFactory.SearchLocationViewModelFactory
 import com.mapbox.mapboxsdk.plugins.places.autocomplete.PlaceAutocomplete
 
 class SearchLocationActivity : AppCompatActivity() {
@@ -20,7 +21,7 @@ class SearchLocationActivity : AppCompatActivity() {
         binding = SearchLocationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel = ViewModelProvider(this).get(SearchLocationViewModel::class.java)
+        viewModel = ViewModelProvider(this, SearchLocationViewModelFactory()).get(SearchLocationViewModel::class.java)
 
         val intent = PlaceAutocomplete.IntentBuilder()
             .accessToken(ConstantKeys.ACCESS_TOKEN)

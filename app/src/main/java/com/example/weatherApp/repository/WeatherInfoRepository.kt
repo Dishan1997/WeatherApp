@@ -27,11 +27,8 @@ import kotlin.coroutines.resume
 class WeatherInfoRepository(private val dao: WeatherInfoDao) {
     private var weatherInfo = WeatherInfo("", "", 0.0)
     private var listOfWeatherInfos: List<HourlyWeatherInfoResponse> = listOf()
-    private var weatherInfoCallback: WeatherInfoCallBack? = null
+     var weatherInfoCallback: WeatherInfoCallBack? = null
 
-    fun setCallback(callback: WeatherInfoCallBack) {
-        weatherInfoCallback = callback
-    }
 
     suspend fun fetchWeatherInfo(lat: Double, long: Double) {
         var httpURLConnection: HttpURLConnection? = null
@@ -70,11 +67,6 @@ class WeatherInfoRepository(private val dao: WeatherInfoDao) {
             weatherInfoCallback?.onWeatherInfoFetched(weatherInfo)
 
         } catch (e: IOException) {
-            GlobalScope.launch(Dispatchers.Main) {
-                val realmData = getCurrentDataFromRealm()
-                weatherInfo = realmData
-            }
-
             weatherInfoCallback?.onWeatherInfoFailure(e.message ?: "An error occurred")
         } finally {
             httpURLConnection?.disconnect()
@@ -112,23 +104,26 @@ class WeatherInfoRepository(private val dao: WeatherInfoDao) {
             weatherInfoCallback?.onHourlyWeatherInfoFetched(listOfWeatherInfos)
 
         } catch (e: IOException) {
-            GlobalScope.launch(Dispatchers.Main) {
-                val realmData = getHourlyDataFromRealm()
-                listOfWeatherInfos = realmData
-            }
             weatherInfoCallback?.onHourlyWeatherInfoFailure(e.message ?: "An error occurred")
         } finally {
             httpURLConnection?.disconnect()
         }
     }
 
-    fun getCurrentDataFromRealm(): WeatherInfo {
-        return dao.getCurrentDataFromRealm()
+    fun getCurrentDataFromRealm(): WeatherInfo? {
+        val realmData =  dao.getCurrentDataFromRealm()
+        weatherInfo = realmData!!
+        weatherInfoCallback?.onWeatherInfoFetched(weatherInfo)
+        return realmData
     }
 
-    fun getHourlyDataFromRealm(): List<HourlyWeatherInfoResponse> {
-        return dao.getHourlyDataFromRealm()
+    fun getHourlyDataFromRealm(): List<HourlyWeatherInfoResponse>? {
+        val realmData =  dao.getHourlyDataFromRealm()
+        listOfWeatherInfos = realmData!!
+        weatherInfoCallback?.onHourlyWeatherInfoFetched(listOfWeatherInfos)
+        return realmData
     }
+
 
     fun closeRealm() {
         dao.closeRealm()
