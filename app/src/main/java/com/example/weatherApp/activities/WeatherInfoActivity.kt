@@ -156,7 +156,7 @@ class WeatherInfoActivity : AppCompatActivity(), LocationListener {
 
     private fun getApiDataFromViewModel() {
         GlobalScope.launch {
-            viewModel.fetchWeatherInfoHourly(latitude, longitude)
+           viewModel.fetchWeatherInfoHourly(latitude, longitude)
             viewModel.fetchWeatherInfo(latitude, longitude)
         }
     }

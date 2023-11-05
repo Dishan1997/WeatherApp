@@ -41,13 +41,13 @@ class MyViewHolder(val binding: DisplayWeatherInfoBinding) : RecyclerView.ViewHo
     fun bind(data: HourlyWeatherInfoResponse) {
 
         val dateTimeString = data.dt_txt
-        val sdfInput = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val sdfInput = SimpleDateFormat(ConstantKeys.DATE_PATTERN)
         val date = sdfInput.parse(dateTimeString)
-        val sdfOutput = SimpleDateFormat("hh:mm a")
+        val sdfOutput = SimpleDateFormat(ConstantKeys.DAY_PATTERN)
         val timeString = sdfOutput.format(date)
         binding.timeTextView.text = timeString
 
-        val temperatureValue1 = data.main.temp - 273.15
+        val temperatureValue1 = data.main.temp - ConstantKeys.KELVIN_TO_CELCIUS_VALUE
         val temperatureValue = String.format("%.2f", temperatureValue1)
         binding.temperatureTextView.text = temperatureValue + "ºC"
 

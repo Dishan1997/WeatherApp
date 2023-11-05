@@ -12,7 +12,7 @@ fun <T> LiveData<T>.getOrAwaitValue(
     afterObserve: () -> Unit = {}
 ) : T{
     var data : T?= null
-    var latch = CountDownLatch(1)
+    var latch = CountDownLatch(2)
     val observer = object: Observer<T> {
         override fun onChanged(value: T) {
             data = value

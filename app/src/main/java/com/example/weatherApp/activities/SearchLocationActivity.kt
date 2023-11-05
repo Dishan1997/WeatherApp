@@ -32,7 +32,6 @@ class SearchLocationActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
         viewModel.getDataFromLocationSearch(requestCode, resultCode, data)
         val locationData = viewModel.getDataFromLocationSearch(requestCode, resultCode, data)
 

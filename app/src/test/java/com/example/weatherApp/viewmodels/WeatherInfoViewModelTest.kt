@@ -1,6 +1,7 @@
 package com.example.weatherApp.viewmodels
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.Observer
 import com.example.weatherApp.WeatherInfo
 import com.example.weatherApp.apiResponse.HourlyWeatherInfoResponse
 import com.example.weatherApp.apiResponse.TemperatureValueResponse
@@ -22,6 +23,10 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.whenever
+import java.util.concurrent.CountDownLatch
 
 class WeatherInfoViewModelTest {
 
@@ -29,6 +34,9 @@ class WeatherInfoViewModelTest {
 
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
+
+    @Mock
+     lateinit var weatherInfoObserver : Observer<WeatherInfo>
 
     @Mock
     lateinit var repository: WeatherInfoRepository
@@ -39,34 +47,44 @@ class WeatherInfoViewModelTest {
     fun setUp() {
         MockitoAnnotations.openMocks(this)
         viewmodel = WeatherInfoViewModel(repository)
-
+        viewmodel.weatherInfoLiveData.observeForever(weatherInfoObserver)
         Dispatchers.setMain(testDispatcher)
     }
 
     @Test
-    fun testFetchWeatherInfoSuccess() = runTest{
+    fun testFetchWeatherInfo_Success(){
         val mockWeatherInfo = WeatherInfo("rain", "10d", 25.86)
-        val mock2 = WeatherInfo("rainy", "1d", 25.76)
-        val list = listOf<WeatherInfo>(
-            mockWeatherInfo,
-            mock2
-        )
 
-        Mockito.`when`(repository.weatherInfoCallback).thenReturn(viewmodel)
-        Mockito.`when`(repository.fetchWeatherInfo( 0.0,0.0)).then {
-            repository.weatherInfoCallback?.onWeatherInfoFetched(mockWeatherInfo)
+        Mockito.`when`(repository.fetchWeatherInfo( 0.0,0.0,){p1, p2->
+        }).then{
+            val callback: (WeatherInfo?, String?) -> Unit = it.getArgument(2)
+              callback(mockWeatherInfo, null)
         }
-
          viewmodel.fetchWeatherInfo(0.0,0.0)
-         testDispatcher.scheduler.advanceUntilIdle()
-         val result = viewmodel.weatherInfoLiveData.getOrAwaitValue()
-         Assert.assertEquals(mockWeatherInfo, result)
-         Assert.assertEquals(2, list.size)
-
+         val result = viewmodel.weatherInfoLiveData.value
+         viewmodel.weatherInfoLiveData.observeForever{
+            Assert.assertEquals(mockWeatherInfo, result)
+             Assert.assertEquals("rain", result?.main)
+        }
     }
 
     @Test
-    fun testFetchHourlyWeatherInfo() = runTest{
+    fun testFetchWeatherInfo_Error(){
+        Mockito.`when`(repository.fetchWeatherInfo( 0.0,0.0,){p1, p2->
+        }).thenAnswer{
+            val callback: (WeatherInfo?, String?) -> Unit = it.getArgument(2)
+            callback(null, "no data found")
+        }
+        viewmodel.fetchWeatherInfo(0.0,0.0)
+        val result = viewmodel.weatherInfoLiveData.value
+        viewmodel.weatherInfoLiveData.observeForever{
+            Assert.assertNull(null, result)
+            Assert.assertEquals("no data found", it)
+        }
+    }
+
+    @Test
+    fun testFetchHourlyWeatherInfo_Success(){
         val mockHourlyWeatherInfo = listOf(
             HourlyWeatherInfoResponse(
                 TemperatureValueResponse(23.5, 22.0, 21.0),
@@ -82,15 +100,41 @@ class WeatherInfoViewModelTest {
             )
         )
 
-        Mockito.`when`(repository.weatherInfoCallback).thenReturn(viewmodel)
-        Mockito.`when`(repository.fetchWeatherInfoHourly(0.0, 0.0)).thenAnswer {
-            repository.weatherInfoCallback?.onHourlyWeatherInfoFetched(mockHourlyWeatherInfo)
+        Mockito.`when`(repository.fetchWeatherInfoHourly(0.0, 0.0){p1, p2->}).thenAnswer {
+            val callback: (List<HourlyWeatherInfoResponse>?, String?) -> Unit = it.getArgument(2)
+            callback(mockHourlyWeatherInfo, null)
         }
 
         viewmodel.fetchWeatherInfoHourly(0.0, 0.0)
-        testDispatcher.scheduler.advanceUntilIdle()
         val result = viewmodel.listOfWeatherInfoLiveData.value
-        Assert.assertEquals(mockHourlyWeatherInfo, result)
+        viewmodel.listOfWeatherInfoLiveData.observeForever{
+            Assert.assertEquals(mockHourlyWeatherInfo, result)
+        }
+
+    }
+
+    @Test
+    fun testFetchHourlyWeatherInfo_Error(){
+        val mockHourlyWeatherInfo = listOf(
+            HourlyWeatherInfoResponse(
+                TemperatureValueResponse(0.0, 0.0, 0.0),
+                listOf(WeatherResponse("", "")),
+                WindResponse(0.0),
+                "0-0-0 00:00:00"
+            )
+        )
+
+        Mockito.`when`(repository.fetchWeatherInfoHourly(0.0, 0.0){p1, p2->}).thenAnswer {
+            val callback: (List<HourlyWeatherInfoResponse>?, String?) -> Unit = it.getArgument(2)
+            callback(null, "no data found")
+        }
+
+        viewmodel.fetchWeatherInfoHourly(0.0, 0.0)
+        val result = viewmodel.listOfWeatherInfoLiveData.value
+        viewmodel.listOfWeatherInfoLiveData.observeForever{
+            Assert.assertNull(result)
+            Assert.assertEquals("no data found", it)
+        }
     }
 
     @After

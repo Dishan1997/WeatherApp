@@ -1,6 +1,9 @@
 package com.example.weatherApp
 
 import com.example.weatherApp.retrofit.WeatherForecastResponseService
+import kotlinx.coroutines.test.runTest
+import mockwebserver3.MockResponse
+import mockwebserver3.MockWebServer
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -9,8 +12,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class WeatherForecastAPITest {
-   // lateinit var mockWebServer: MockWebServer
-    lateinit var mockWebServer:
+
+    lateinit var mockWebServer: MockWebServer
     lateinit var weatherForecastApi : WeatherForecastResponseService
 
     @Before

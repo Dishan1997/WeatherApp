@@ -6,18 +6,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherApp.apiResponse.HourlyWeatherInfoResponse
 import com.example.weatherApp.WeatherInfo
-import com.example.weatherApp.WeatherInfoCallBack
 import com.example.weatherApp.repository.WeatherInfoRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-class WeatherInfoViewModel(private val repository: WeatherInfoRepository) : ViewModel(),
-    WeatherInfoCallBack {
+class WeatherInfoViewModel(private val repository: WeatherInfoRepository) : ViewModel(){
 
-    init{
-        repository.weatherInfoCallback = this
-    }
     private var weatherInfo: MutableLiveData<WeatherInfo> = MutableLiveData()
     private var listOfWeatherInfos: MutableLiveData<List<HourlyWeatherInfoResponse>> =
         MutableLiveData()
@@ -28,41 +23,39 @@ class WeatherInfoViewModel(private val repository: WeatherInfoRepository) : View
         get() = listOfWeatherInfos
 
 
-    suspend fun fetchWeatherInfo(lat: Double, long: Double) {
-        repository.fetchWeatherInfo(lat, long).let{
-            if(it == null){
-                repository.getCurrentDataFromRealm()
+     fun fetchWeatherInfo(lat: Double, long: Double) {
+        repository.fetchWeatherInfo(lat, long) {
+            weatherData, errorMessage->
+            if(weatherData == null){
+                val data = repository.getCurrentDataFromRealm()
+                viewModelScope.launch(Dispatchers.Main) {
+                    weatherInfo.value = data!!
+                }
+            }
+            else{
+                viewModelScope.launch(Dispatchers.Main) {
+                    weatherInfo.value = weatherData
+                }
+            }
+        }
+        }
+
+
+     fun fetchWeatherInfoHourly(lat: Double, long: Double) {
+        repository.fetchWeatherInfoHourly(lat, long){
+                hourlyWeatherData, errorMessage->
+            if(hourlyWeatherData == null){
+               val data = repository.getHourlyDataFromRealm() ?: emptyList()
+                viewModelScope.launch(Dispatchers.Main) {
+                    listOfWeatherInfos.postValue(data)
+                }
+            }
+            else{
+                viewModelScope.launch(Dispatchers.Main) {
+                    listOfWeatherInfos.postValue(hourlyWeatherData)
+                }
             }
         }
     }
-
-    suspend fun fetchWeatherInfoHourly(lat: Double, long: Double) {
-        repository.fetchWeatherInfoHourly(lat, long).let{
-            if(it == null){
-                repository.getHourlyDataFromRealm()
-            }
-        }
-
-    }
-    override fun onCleared() {
-        repository.weatherInfoCallback = null
-        repository.closeRealm()
-        super.onCleared()
-
-    }
-    override fun onWeatherInfoFetched(weatherInfoData: WeatherInfo) {
-        viewModelScope.launch(Dispatchers.Main) {
-            weatherInfo.value = weatherInfoData
-        }
-    }
-    override fun onHourlyWeatherInfoFetched(hourlyWeatherInfo: List<HourlyWeatherInfoResponse>) {
-        viewModelScope.launch(Dispatchers.Main) {
-            listOfWeatherInfos.postValue(hourlyWeatherInfo)
-        }
-    }
-    override fun onWeatherInfoFailure(errorResult: String) {
-    }
-    override fun onHourlyWeatherInfoFailure(errorResult: String) {
-    }
-
 }
+

@@ -38,31 +38,29 @@ class TemperatureViewHolder(val binding: DisplayWeatherForecastBinding) :
     RecyclerView.ViewHolder(binding.root) {
     fun bind(temp: HourlyWeatherInfoResponse) {
         val inputDate = temp.dt_txt
-        val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-        val outputFormat = SimpleDateFormat("MMM d")
+        val inputFormat = SimpleDateFormat(ConstantKeys.DATE_PATTERN)
+        val outputFormat = SimpleDateFormat(ConstantKeys.DAY_PATTERN)
         val outputDate = inputFormat.parse(inputDate)
         val date =  outputFormat.format(outputDate)
         binding.dateTextView.text = date
 
-        val maxTemp1 = temp.main.temp_max - 273.15
+        val maxTemp1 = temp.main.temp_max - ConstantKeys.KELVIN_TO_CELCIUS_VALUE
          val maxTemp = maxTemp1.toInt()
-        val minTemp1 = temp.main.temp_min - 273.15
+        val minTemp1 = temp.main.temp_min - ConstantKeys.KELVIN_TO_CELCIUS_VALUE
         val minTemp = minTemp1.toInt()
         binding.maxTemperatureTextView.text = maxTemp.toString() + "ºC/"
         binding.minTemperaturetextView.text = minTemp.toString() + "ºC"
 
         val dateandTimeValue = temp.dt_txt
-        val sdfInput = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val sdfInput = SimpleDateFormat(ConstantKeys.DATE_PATTERN)
         val dateAndTime = sdfInput.parse(dateandTimeValue)
-        val sdfOutput = SimpleDateFormat("hh:mm a")
+        val sdfOutput = SimpleDateFormat(ConstantKeys.DAY_PATTERN)
         val timeString = sdfOutput.format(dateAndTime)
         binding.timeTextView.text = timeString
-
 
         binding.typeWeatherTextView.text = temp.weather[0].main
         val icon = temp.weather[0].icon
         var url = "${ConstantKeys.ICON_URL}" + icon + ".png"
         Glide.with(binding.root).load(url).into(binding.weatherIconImageView)
-
     }
 }

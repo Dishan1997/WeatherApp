@@ -11,8 +11,8 @@ import com.example.weatherApp.realm.WeatherForecast
 import io.realm.Realm
 
 class WeatherInfoDao {
-    private val realm = Realm.getDefaultInstance()
-    fun getCurrentDataFromRealm(): WeatherInfo? {
+
+    fun getCurrentWeatherData(): WeatherInfo? {
         var realm = Realm.getDefaultInstance()
         val results = realm.where(WeatherForecast::class.java).findAll()
         var size = results.size
@@ -29,7 +29,7 @@ class WeatherInfoDao {
         return null
     }
 
-    fun getHourlyDataFromRealm(): List<HourlyWeatherInfoResponse>? {
+    fun getHourlyWeatherData(): List<HourlyWeatherInfoResponse>? {
        var realm = Realm.getDefaultInstance()
         val results = realm.where(WeatherForecast::class.java).findAll()
         val weatherInfoList = mutableListOf<HourlyWeatherInfoResponse>()
@@ -52,33 +52,34 @@ class WeatherInfoDao {
         return null
     }
 
-     fun saveCurrentDataToRealm(weatherData: WeatherInfo) {
-        realm.executeTransaction { realm ->
-            realm.where(CurrentWeatherInfo::class.java).findAll().deleteAllFromRealm()
-            val realmObject = CurrentWeatherInfo()
-            realmObject.icon = weatherData.icon
-            realmObject.temperatureType = weatherData.main
-            realmObject.temperature = weatherData.temperature
-            realm.copyToRealm(realmObject)
-        }
+     fun saveCurrentWeatherData(weatherData: WeatherInfo) {
+         Realm.getDefaultInstance().use {realm->
+             realm.executeTransaction { realm ->
+                 realm.where(CurrentWeatherInfo::class.java).findAll().deleteAllFromRealm()
+                 val realmObject = CurrentWeatherInfo()
+                 realmObject.icon = weatherData.icon
+                 realmObject.temperatureType = weatherData.main
+                 realmObject.temperature = weatherData.temperature
+                 realm.copyToRealm(realmObject)
+             }
+         }
     }
 
-     fun saveHourlyDataToRealm(weatherData: List<HourlyWeatherInfoResponse>) {
-        realm.executeTransaction { realm ->
-            realm.where(HourlyWeatherInfo::class.java).findAll().deleteAllFromRealm()
-            weatherData.forEach { item ->
-                val realmObject = HourlyWeatherInfo()
-                realmObject.time = item.dt_txt
-                realmObject.icon = item.weather[0].icon
-                realmObject.temperature = item.main.temp
-                realmObject.windSpeed = item.wind.speed
-                realm.copyToRealm(realmObject)
-            }
-        }
-    }
+     fun saveHourlyWeatherData(weatherData: List<HourlyWeatherInfoResponse>) {
+        Realm.getDefaultInstance().use {realm->
+             realm.executeTransaction { realm ->
+                 realm.where(HourlyWeatherInfo::class.java).findAll().deleteAllFromRealm()
+                 weatherData.forEach { item ->
+                     val realmObject = HourlyWeatherInfo()
+                     realmObject.time = item.dt_txt
+                     realmObject.icon = item.weather[0].icon
+                     realmObject.temperature = item.main.temp
+                     realmObject.windSpeed = item.wind.speed
+                     realm.copyToRealm(realmObject)
+                 }
+             }
+         }
 
-    fun closeRealm(){
-        realm.close()
     }
 
 }

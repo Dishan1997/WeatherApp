@@ -38,8 +38,9 @@ class WeatherInfoFragment : Fragment(), LocationListener {
     private lateinit var viewModel: WeatherInfoViewModel
 
     private var cityName = ""
-    private var latitude = 0.0
-    private var longitude = 0.0
+    var latitude = 0.0
+    var longitude = 0.0
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -103,7 +104,7 @@ class WeatherInfoFragment : Fragment(), LocationListener {
         val city = getCityName(location.latitude, location.longitude)
         binding?.cityNameTextView?.text = city
         cityName = city
-        getApiDataFromViewModel()
+        getWeatherDataFromViewModel()
     }
 
     override fun onRequestPermissionsResult(
@@ -159,12 +160,12 @@ class WeatherInfoFragment : Fragment(), LocationListener {
         latitude = lat
         longitude = long
 
-        getApiDataFromViewModel()
+        getWeatherDataFromViewModel()
         val city = intent.getStringExtra(ConstantKeys.KEY_CITY_NAME)
         binding?.cityNameTextView?.text = city
         cityName = city.toString()
     }
-    private fun getApiDataFromViewModel() {
+    private fun getWeatherDataFromViewModel() {
         GlobalScope.launch {
             viewModel.fetchWeatherInfoHourly(latitude, longitude)
             viewModel.fetchWeatherInfo(latitude, longitude)

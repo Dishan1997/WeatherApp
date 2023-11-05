@@ -10,6 +10,8 @@ import com.example.getlocation.databinding.WeatherForecastBinding
 import com.example.weatherApp.ConstantKeys
 import com.example.weatherApp.adapter.WeatherDataForecastActivityAdapter
 import com.example.weatherApp.viewmodels.WeatherDataForecastViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -35,7 +37,7 @@ class WeatherDataForecastActivity : AppCompatActivity() {
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerviewAdapter = WeatherDataForecastActivityAdapter()
 
-        GlobalScope.launch {
+        CoroutineScope(Dispatchers.IO).launch{
             viewModel.getWeatherForecast(lat, lon)
         }
 

@@ -114,4 +114,10 @@ dependencies {
     implementation("com.squareup.okhttp3:mockwebserver3:5.0.0-alpha.2")
     testImplementation("com.squareup.okhttp3:mockwebserver3:5.0.0-alpha.2")
 
+
+    implementation("org.mockito:mockito-core:3.2.0")
+    implementation("org.mockito.kotlin:mockito-kotlin:3.2.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:3.2.0")
+
+
 }

@@ -42,7 +42,7 @@ class WeatherDataForecastViewModelTest {
     }
 
     @Test
-    fun testWeatherForecast() = runTest{
+    fun testWeatherForecast_Success() = runTest{
         val mockData = listOf(
             HourlyWeatherInfoResponse(
                 TemperatureValueResponse(0.0, 0.0, 0.0),
@@ -65,6 +65,15 @@ class WeatherDataForecastViewModelTest {
         val result = viewmodel.weatherLiveData.value
         Assert.assertEquals(mockData, result)
         Assert.assertEquals(2, result?.size)
+    }
+
+    @Test
+    fun testWeatherForecast_Error() = runTest{
+        Mockito.`when`(repository.fetchWeatherForecast(0.0, 0.0)).thenReturn(emptyList())
+        viewmodel.getWeatherForecast(0.0,0.0)
+        testDispatcher.scheduler.advanceUntilIdle()
+        val result = viewmodel.weatherLiveData.value
+        Assert.assertEquals(0, result?.size)
     }
 
     @After
